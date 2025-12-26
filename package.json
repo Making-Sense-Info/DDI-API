@@ -5,7 +5,7 @@
   "scripts": {
     "build:swagger": "node scripts/build-swagger.js",
     "preview:swagger": "npx serve dist -p 8080",
-    "deploy": "npm run build:swagger && gh-pages -d dist"
+    "deploy": "yarn build:swagger && gh-pages -d dist"
   },
   "devDependencies": {
     "gh-pages": "^6.0.0",
