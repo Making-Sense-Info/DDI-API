@@ -1,0 +1,2133 @@
+openapi: 3.1.1
+info:
+  version: '1.0.0'
+  title: 'DDI RESTful API, v1.0.0'
+  description: |
+    The RESTful API for DDI (Data Documentation Initiative).
+    
+    This API provides access to DDI metadata resources including variables, concepts, concept schemes, and variable schemes.
+    
+    DDI is an international standard for describing statistical and social science data.
+    
+    **Identification**: In DDI, resources can be identified either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+servers:
+  - description: Example API Server
+    url: https://api.example.com/ddi/v1
+
+x-commons:
+  common_responses: &common_responses
+    "204":
+      $ref: "#/components/responses/204"
+    "304":
+      $ref: "#/components/responses/304"
+    "400":
+      $ref: "#/components/responses/400"
+    "401":
+      $ref: "#/components/responses/401"
+    "403":
+      $ref: "#/components/responses/403"
+    "404":
+      $ref: "#/components/responses/404"
+    "406":
+      $ref: "#/components/responses/406"
+    "413":
+      $ref: "#/components/responses/413"
+    "414":
+      $ref: "#/components/responses/414"
+    "422":
+      $ref: "#/components/responses/422"
+    "500":
+      $ref: "#/components/responses/500"
+    "501":
+      $ref: "#/components/responses/501"
+    "503":
+      $ref: "#/components/responses/503"
+
+paths:
+  /variables:
+    get:
+      summary: "Get variables"
+      tags:
+        - Variables
+      description: |
+        Retrieve variables from DDI metadata.
+        
+        Variables describe the structure of data elements within a dataset. They include information such as name, label, description, and references to associated concepts.
+        
+        Variables can be filtered by various criteria including study, dataset, or concept references.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/variableID"
+        - $ref: "#/components/parameters/studyID"
+        - $ref: "#/components/parameters/datasetID"
+        - $ref: "#/components/parameters/conceptReference"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-variables"
+
+  /variables/{variableID}:
+    get:
+      summary: "Get variable by ID"
+      tags:
+        - Variables
+      description: |
+        Retrieve a specific variable identified by its ID.
+        
+        The variableID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the variable including its structure, concepts, and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/variableID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-variable"
+
+  /concepts:
+    get:
+      summary: "Get concepts"
+      tags:
+        - Concepts
+      description: |
+        Retrieve concepts from DDI metadata.
+        
+        Concepts define the ideas or categories used to describe data. They are essential for understanding the meaning of variables and other data elements.
+        
+        Concepts can be filtered by various criteria including concept scheme or variable references.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/conceptID"
+        - $ref: "#/components/parameters/conceptSchemeID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-concepts"
+
+  /concepts/{conceptID}:
+    get:
+      summary: "Get concept by ID"
+      tags:
+        - Concepts
+      description: |
+        Retrieve a specific concept identified by its ID.
+        
+        The conceptID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the concept including its definition, labels, and related variables.
+      parameters:
+        - $ref: "#/components/parameters/conceptID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-concept"
+
+  /concept-schemes:
+    get:
+      summary: "Get concept schemes"
+      tags:
+        - Concept Schemes
+      description: |
+        Retrieve concept schemes from DDI metadata.
+        
+        Concept schemes are collections of concepts that provide a structured vocabulary for describing data.
+        
+        Concept schemes can be filtered by various criteria including agency, resource, or version.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/conceptSchemeID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-concept-schemes"
+
+  /concept-schemes/{conceptSchemeID}:
+    get:
+      summary: "Get concept scheme by ID"
+      tags:
+        - Concept Schemes
+      description: |
+        Retrieve a specific concept scheme identified by its ID.
+        
+        The conceptSchemeID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the concept scheme including its concepts and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/conceptSchemeID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-concept-scheme"
+
+  /variable-schemes:
+    get:
+      summary: "Get variable schemes"
+      tags:
+        - Variable Schemes
+      description: |
+        Retrieve variable schemes from DDI metadata.
+        
+        Variable schemes are collections of variables that provide a structured definition of data elements.
+        
+        Variable schemes can be filtered by various criteria including agency, resource, or version.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/variableSchemeID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-variable-schemes"
+
+  /variable-schemes/{variableSchemeID}:
+    get:
+      summary: "Get variable scheme by ID"
+      tags:
+        - Variable Schemes
+      description: |
+        Retrieve a specific variable scheme identified by its ID.
+        
+        The variableSchemeID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the variable scheme including its variables and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/variableSchemeID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-variable-scheme"
+
+  /code-list-schemes:
+    get:
+      summary: "Get code list schemes"
+      tags:
+        - Code List Schemes
+      description: |
+        Retrieve code list schemes from DDI metadata.
+        
+        Code list schemes are collections of code lists that provide structured vocabularies for categorical data.
+        
+        Code list schemes can be filtered by various criteria including agency, resource, or version.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/codeListSchemeID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-code-list-schemes"
+
+  /code-list-schemes/{codeListSchemeID}:
+    get:
+      summary: "Get code list scheme by ID"
+      tags:
+        - Code List Schemes
+      description: |
+        Retrieve a specific code list scheme identified by its ID.
+        
+        The codeListSchemeID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the code list scheme including its code lists and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/codeListSchemeID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-code-list-scheme"
+
+  /code-lists:
+    get:
+      summary: "Get code lists"
+      tags:
+        - Code Lists
+      description: |
+        Retrieve code lists from DDI metadata.
+        
+        Code lists define sets of valid codes (values) for variables.
+        
+        Code lists can be filtered by various criteria including agency, resource, version, or category scheme.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/codeListID"
+        - $ref: "#/components/parameters/categorySchemeReference"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-code-lists"
+
+  /code-lists/{codeListID}:
+    get:
+      summary: "Get code list by ID"
+      tags:
+        - Code Lists
+      description: |
+        Retrieve a specific code list identified by its ID.
+        
+        The codeListID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the code list including its codes and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/codeListID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-code-list"
+
+  /category-schemes:
+    get:
+      summary: "Get category schemes"
+      tags:
+        - Category Schemes
+      description: |
+        Retrieve category schemes from DDI metadata.
+        
+        Category schemes are collections of categories that provide structured vocabularies for categorical data.
+        
+        Category schemes can be filtered by various criteria including agency, resource, or version.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/categorySchemeID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-category-schemes"
+
+  /category-schemes/{categorySchemeID}:
+    get:
+      summary: "Get category scheme by ID"
+      tags:
+        - Category Schemes
+      description: |
+        Retrieve a specific category scheme identified by its ID.
+        
+        The categorySchemeID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the category scheme including its categories and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/categorySchemeID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-category-scheme"
+
+components:
+  parameters:
+    agencyID:
+      in: query
+      name: agencyID
+      description: |
+        Filter by agency ID. Multiple values are supported.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    resourceID:
+      in: query
+      name: resourceID
+      description: |
+        Filter by resource ID. Multiple values are supported.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    version:
+      in: query
+      name: version
+      description: |
+        Filter by version. Multiple values are supported.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+      style: form
+      explode: false
+    variableID:
+      in: query
+      name: variableID
+      description: |
+        Filter by variable ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:var-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "var-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:var-001:1.0.0"
+            - "var-001"
+      style: form
+      explode: false
+    variableID-path:
+      in: path
+      name: variableID
+      description: |
+        The identifier of the variable to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:var-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "var-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:var-001:1.0.0"
+          - "var-001"
+    conceptID:
+      in: query
+      name: conceptID
+      description: |
+        Filter by concept ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:concept-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "concept-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:concept-001:1.0.0"
+            - "concept-001"
+      style: form
+      explode: false
+    conceptID-path:
+      in: path
+      name: conceptID
+      description: |
+        The identifier of the concept to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:concept-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "concept-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:concept-001:1.0.0"
+          - "concept-001"
+    studyID:
+      in: query
+      name: studyID
+      description: |
+        Filter by study ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:study-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "study-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:study-001:1.0.0"
+            - "study-001"
+      style: form
+      explode: false
+    datasetID:
+      in: query
+      name: datasetID
+      description: |
+        Filter by dataset ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:dataset-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "dataset-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:dataset-001:1.0.0"
+            - "dataset-001"
+      style: form
+      explode: false
+    conceptReference:
+      in: query
+      name: conceptReference
+      description: |
+        Filter variables by referenced concept ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:concept-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "concept-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:concept-001:1.0.0"
+            - "concept-001"
+      style: form
+      explode: false
+    conceptSchemeID:
+      in: query
+      name: conceptSchemeID
+      description: |
+        Filter concepts by concept scheme ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:conceptscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "conceptscheme-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:conceptscheme-001:1.0.0"
+            - "conceptscheme-001"
+      style: form
+      explode: false
+    conceptSchemeID-path:
+      in: path
+      name: conceptSchemeID
+      description: |
+        The identifier of the concept scheme to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:conceptscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "conceptscheme-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:conceptscheme-001:1.0.0"
+          - "conceptscheme-001"
+    variableSchemeID:
+      in: query
+      name: variableSchemeID
+      description: |
+        Filter by variable scheme ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:variablescheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "variablescheme-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:variablescheme-001:1.0.0"
+            - "variablescheme-001"
+      style: form
+      explode: false
+    variableSchemeID-path:
+      in: path
+      name: variableSchemeID
+      description: |
+        The identifier of the variable scheme to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:variablescheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "variablescheme-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:variablescheme-001:1.0.0"
+          - "variablescheme-001"
+    codeListSchemeID:
+      in: query
+      name: codeListSchemeID
+      description: |
+        Filter by code list scheme ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:codelistscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "codelistscheme-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:codelistscheme-001:1.0.0"
+            - "codelistscheme-001"
+      style: form
+      explode: false
+    codeListSchemeID-path:
+      in: path
+      name: codeListSchemeID
+      description: |
+        The identifier of the code list scheme to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:codelistscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "codelistscheme-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:codelistscheme-001:1.0.0"
+          - "codelistscheme-001"
+    codeListID:
+      in: query
+      name: codeListID
+      description: |
+        Filter by code list ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:codelist-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "codelist-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:codelist-001:1.0.0"
+            - "codelist-001"
+      style: form
+      explode: false
+    codeListID-path:
+      in: path
+      name: codeListID
+      description: |
+        The identifier of the code list to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:codelist-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "codelist-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:codelist-001:1.0.0"
+          - "codelist-001"
+    categorySchemeID:
+      in: query
+      name: categorySchemeID
+      description: |
+        Filter by category scheme ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "categoryscheme-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+            - "categoryscheme-001"
+      style: form
+      explode: false
+    categorySchemeID-path:
+      in: path
+      name: categorySchemeID
+      description: |
+        The identifier of the category scheme to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "categoryscheme-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+          - "categoryscheme-001"
+    categorySchemeReference:
+      in: query
+      name: categorySchemeReference
+      description: |
+        Filter code lists by referenced category scheme ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "categoryscheme-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+            - "categoryscheme-001"
+      style: form
+      explode: false
+    references:
+      in: query
+      name: references
+      description: |
+        Instructs the web service to return (or not) the artefacts referenced by the returned resources.
+        
+        If true, returns referenced artefacts. If false or omitted, returns only the requested resources.
+      required: false
+      schema:
+        type: boolean
+        default: false
+    offset:
+      in: query
+      name: offset
+      description: |
+        Pagination parameter. The offset from which to start returning results.
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    limit:
+      in: query
+      name: limit
+      description: |
+        Pagination parameter. The maximum number of results to return.
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+    urn:
+      in: query
+      name: urn
+      description: |
+        Filter by URN (Uniform Resource Name).
+        Format: "urn:ddi:{agency}:{id}:{version}"
+        Multiple values are supported.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$"
+      style: form
+      explode: false
+
+  responses:
+    "200-variables":
+      description: OK - List of variables
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: variables
+            items:
+              $ref: "#/components/schemas/Variable"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Variable"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Variable"
+    "200-variable":
+      description: OK - Single variable
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Variable"
+              - type: object
+                xml:
+                  name: variable
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/Variable"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Variable"
+    "200-concepts":
+      description: OK - List of concepts
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: concepts
+            items:
+              $ref: "#/components/schemas/Concept"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Concept"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/Concept"
+    "200-concept":
+      description: OK - Single concept
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/Concept"
+              - type: object
+                xml:
+                  name: concept
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/Concept"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Concept"
+    "200-concept-schemes":
+      description: OK - List of concept schemes
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: conceptSchemes
+            items:
+              $ref: "#/components/schemas/ConceptScheme"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ConceptScheme"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/ConceptScheme"
+    "200-concept-scheme":
+      description: OK - Single concept scheme
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ConceptScheme"
+              - type: object
+                xml:
+                  name: conceptScheme
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/ConceptScheme"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ConceptScheme"
+    "200-variable-schemes":
+      description: OK - List of variable schemes
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: variableSchemes
+            items:
+              $ref: "#/components/schemas/VariableScheme"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/VariableScheme"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/VariableScheme"
+    "200-variable-scheme":
+      description: OK - Single variable scheme
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/VariableScheme"
+              - type: object
+                xml:
+                  name: variableScheme
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/VariableScheme"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/VariableScheme"
+    "200-code-list-schemes":
+      description: OK - List of code list schemes
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: codeListSchemes
+            items:
+              $ref: "#/components/schemas/CodeListScheme"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CodeListScheme"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CodeListScheme"
+    "200-code-list-scheme":
+      description: OK - Single code list scheme
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CodeListScheme"
+              - type: object
+                xml:
+                  name: codeListScheme
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/CodeListScheme"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CodeListScheme"
+    "200-code-lists":
+      description: OK - List of code lists
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: codeLists
+            items:
+              $ref: "#/components/schemas/CodeList"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CodeList"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CodeList"
+    "200-code-list":
+      description: OK - Single code list
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CodeList"
+              - type: object
+                xml:
+                  name: codeList
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/CodeList"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CodeList"
+    "200-category-schemes":
+      description: OK - List of category schemes
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: categorySchemes
+            items:
+              $ref: "#/components/schemas/CategoryScheme"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CategoryScheme"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/CategoryScheme"
+    "200-category-scheme":
+      description: OK - Single category scheme
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/CategoryScheme"
+              - type: object
+                xml:
+                  name: categoryScheme
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/CategoryScheme"
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CategoryScheme"
+    "204":
+      description: No content
+    "304":
+      description: Not modified
+    "400":
+      description: Bad request
+    "401":
+      description: Unauthorized
+    "403":
+      description: Forbidden
+    "404":
+      description: Not found
+    "406":
+      description: Not acceptable
+    "413":
+      description: Request entity too large
+    "414":
+      description: URI too long
+    "422":
+      description: Unprocessable entity
+    "500":
+      description: Internal server error
+    "501":
+      description: Not implemented
+    "503":
+      description: Service unavailable
+
+  schemas:
+    Variable:
+      type: object
+      description: |
+        A Variable describes the structure of a data element within a dataset.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the variable.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:45a4b2d2-c932-4b3c-a39f-1dba7cff24bd:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the variable.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the variable
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this variable.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the variable.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Variable names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        conceptReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to the concept associated with this variable
+        representation:
+          $ref: "#/components/schemas/VariableRepresentation"
+          description: The representation of the variable (e.g., numeric, text, date, code)
+        sourceVariableReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to the source variable if this is a derived variable
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the variable has a universally unique identifier
+      required:
+        - id
+        - name
+      example:
+        urn: "urn:ddi:example.agency:var-001:1.0.0"
+        id: "var-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "VARIABLE_001"
+          typeOfUserID: "InternalID"
+        name:
+          - lang: "en"
+            value: "age_at_baseline"
+          - lang: "fr"
+            value: "age_au_depart"
+        label:
+          - lang: "en"
+            value: "Age at baseline examination"
+          - lang: "fr"
+            value: "Âge à l'examen de base"
+        description:
+          - lang: "en"
+            value: "Participant's age in years at the time of baseline examination"
+          - lang: "fr"
+            value: "Âge du participant en années au moment de l'examen de base"
+        conceptReference:
+          urn: "urn:ddi:example.agency:concept-001:1.0.0"
+          id: "concept-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "Concept"
+        representation:
+          codeRepresentation:
+            recommendedDataType: "Integer"
+            codeListReference:
+              urn: "urn:ddi:example.agency:codelist-001:1.0.0"
+              id: "codelist-001"
+              agencyID: "example.agency"
+              version: "1.0.0"
+              typeOfObject: "CodeList"
+        isUniversallyUnique: true
+
+    Concept:
+      type: object
+      description: |
+        A Concept defines an idea or category used to describe data.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the concept.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:78816a68-f458-42ce-b72b-a8e3cb755cfb:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the concept.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the concept
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this concept.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the concept.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Concept names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        definition:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Formal definitions in different languages
+        conceptSchemeReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to the concept scheme containing this concept
+        subclassOfReference:
+          $ref: "#/components/schemas/Reference"
+          description: |
+            Reference to the parent concept (subclass relationship).
+            
+            The child concept references its parent concept. For example, if concept-001.1 has subclassOfReference to concept-001, 
+            then concept-001.1 is a child (subclass) of concept-001 (the parent).
+            
+            A concept can have 0 or 1 parent concept.
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the concept has a universally unique identifier
+      required:
+        - id
+        - name
+      example:
+        urn: "urn:ddi:example.agency:concept-001:1.0.0"
+        id: "concept-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "CONCEPT_AGE"
+          typeOfUserID: "InternalID"
+        name:
+          - lang: "en"
+            value: "age"
+          - lang: "fr"
+            value: "age"
+        label:
+          - lang: "en"
+            value: "Age"
+          - lang: "fr"
+            value: "Âge"
+        description:
+          - lang: "en"
+            value: "The length of time that a person has lived"
+          - lang: "fr"
+            value: "La durée de vie d'une personne"
+        definition:
+          - lang: "en"
+            value: "Age is measured in years from birth"
+          - lang: "fr"
+            value: "L'âge est mesuré en années depuis la naissance"
+        conceptSchemeReference:
+          urn: "urn:ddi:example.agency:conceptscheme-001:1.0.0"
+          id: "conceptscheme-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "ConceptScheme"
+        subclassOfReference:
+          urn: "urn:ddi:example.agency:concept-parent:1.0.0"
+          id: "concept-parent"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "Concept"
+        isUniversallyUnique: true
+
+    ConceptScheme:
+      type: object
+      description: |
+        A ConceptScheme is a collection of concepts that provides a structured vocabulary for describing data.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the concept scheme.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:18de7e1e-4f7b-4d6f-a3b2-c6965afb75a5:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the concept scheme.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the concept scheme
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this concept scheme.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the concept scheme.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Concept scheme names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        concepts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
+          description: List of identifiers for the concepts contained in this scheme
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the concept scheme has a universally unique identifier
+      required:
+        - id
+        - name
+      example:
+        urn: "urn:ddi:example.agency:conceptscheme-001:1.0.0"
+        id: "conceptscheme-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "DEMOGRAPHICS_CONCEPT_SCHEME"
+          typeOfUserID: "InternalID"
+        name:
+          - lang: "en"
+            value: "Demographics Concept Scheme"
+          - lang: "fr"
+            value: "Schéma de concepts démographiques"
+        label:
+          - lang: "en"
+            value: "Demographics Concept Scheme"
+          - lang: "fr"
+            value: "Schéma de concepts démographiques"
+        description:
+          - lang: "en"
+            value: "A collection of concepts related to demographic characteristics"
+          - lang: "fr"
+            value: "Une collection de concepts liés aux caractéristiques démographiques"
+        concepts:
+          - urn: "urn:ddi:example.agency:concept-001:1.0.0"
+            id: "concept-001"
+            agencyID: "example.agency"
+            version: "1.0.0"
+          - urn: "urn:ddi:example.agency:concept-002:1.0.0"
+            id: "concept-002"
+            agencyID: "example.agency"
+            version: "1.0.0"
+        isUniversallyUnique: true
+
+    VariableScheme:
+      type: object
+      description: |
+        A VariableScheme is a collection of variables that provides a structured definition of data elements.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the variable scheme.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:691dd223-4882-4cfe-96ae-00bdbd36ef4e:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the variable scheme.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the variable scheme
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this variable scheme.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the variable scheme.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Variable scheme names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        variables:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
+          description: List of identifiers for the variables contained in this scheme
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the variable scheme has a universally unique identifier
+      required:
+        - id
+        - name
+      example:
+        urn: "urn:ddi:example.agency:variablescheme-001:1.0.0"
+        id: "variablescheme-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "BASELINE_VARIABLE_SCHEME"
+          typeOfUserID: "InternalID"
+        name:
+          - lang: "en"
+            value: "Baseline Variable Scheme"
+          - lang: "fr"
+            value: "Schéma de variables de base"
+        label:
+          - lang: "en"
+            value: "Baseline Variable Scheme"
+          - lang: "fr"
+            value: "Schéma de variables de base"
+        description:
+          - lang: "en"
+            value: "A collection of variables collected at baseline"
+          - lang: "fr"
+            value: "Une collection de variables collectées au départ"
+        variables:
+          - urn: "urn:ddi:example.agency:var-001:1.0.0"
+            id: "var-001"
+            agencyID: "example.agency"
+            version: "1.0.0"
+          - urn: "urn:ddi:example.agency:var-002:1.0.0"
+            id: "var-002"
+            agencyID: "example.agency"
+            version: "1.0.0"
+        isUniversallyUnique: true
+
+    Label:
+      type: object
+      description: A label in a specific language
+      properties:
+        lang:
+          type: string
+          description: Language code (ISO 639-1)
+        value:
+          type: string
+          description: The label text
+      required:
+        - lang
+        - value
+      example:
+        lang: "en"
+        value: "Age at baseline examination"
+
+    Description:
+      type: object
+      description: A description in a specific language
+      properties:
+        lang:
+          type: string
+          description: Language code (ISO 639-1)
+        value:
+          type: string
+          description: The description text
+      required:
+        - lang
+        - value
+      example:
+        lang: "en"
+        value: "Participant's age in years at the time of baseline examination"
+
+    Reference:
+      type: object
+      description: |
+        A reference to another DDI resource.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN of the referenced resource.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+        id:
+          type: string
+          description: |
+            The identifier of the referenced resource.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining the referenced resource.
+            When used with id and version, forms an alternative identification to URN.
+        version:
+          type: string
+          description: |
+            The version of the referenced resource.
+            When used with agencyID and id, forms an alternative identification to URN.
+        typeOfObject:
+          type: string
+          description: The type of the referenced resource (e.g., Concept, Variable, ConceptScheme, CodeList, CodeListScheme, CategoryScheme, Category)
+        type:
+          type: string
+          description: Alias for typeOfObject (for backward compatibility)
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:concept-001:1.0.0"
+        id: "concept-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        typeOfObject: "Concept"
+
+    CodeListScheme:
+      type: object
+      description: |
+        A CodeListScheme is a collection of code lists that provides structured vocabularies for categorical data.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the code list scheme.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:02bc92e3-671c-4e5c-bdf1-7113a45dc869:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the code list scheme.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the code list scheme
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this code list scheme.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the code list scheme.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Code list scheme names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        codeLists:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
+          description: List of identifiers for the code lists contained in this scheme
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the code list scheme has a universally unique identifier
+      required:
+        - id
+        - name
+      example:
+        urn: "urn:ddi:example.agency:codelistscheme-001:1.0.0"
+        id: "codelistscheme-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "DEMOGRAPHICS_CODE_SCHEME"
+          typeOfUserID: "InternalID"
+        name:
+          - lang: "en"
+            value: "Demographics Code List Scheme"
+          - lang: "fr"
+            value: "Schéma de listes de codes démographiques"
+        label:
+          - lang: "en"
+            value: "Demographics Code List Scheme"
+          - lang: "fr"
+            value: "Schéma de listes de codes démographiques"
+        description:
+          - lang: "en"
+            value: "A collection of code lists for demographic variables"
+          - lang: "fr"
+            value: "Une collection de listes de codes pour les variables démographiques"
+        codeLists:
+          - urn: "urn:ddi:example.agency:codelist-001:1.0.0"
+            id: "codelist-001"
+            agencyID: "example.agency"
+            version: "1.0.0"
+        isUniversallyUnique: true
+
+    CodeList:
+      type: object
+      description: |
+        A CodeList defines a set of valid codes (values) for a variable.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the code list.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:c59a33ea-722e-4750-96ac-f4e878c88194:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the code list.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the code list
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this code list.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the code list.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Code list names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        categorySchemeReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to the category scheme used by this code list
+        codes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Code"
+          description: The codes contained in this code list
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the code list has a universally unique identifier
+      required:
+        - id
+        - name
+      example:
+        urn: "urn:ddi:example.agency:codelist-001:1.0.0"
+        id: "codelist-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "GENDER_CODELIST"
+          typeOfUserID: "InternalID"
+        name:
+          - lang: "en"
+            value: "Gender"
+          - lang: "fr"
+            value: "Genre"
+        label:
+          - lang: "en"
+            value: "Gender Code List"
+          - lang: "fr"
+            value: "Liste de codes du genre"
+        description:
+          - lang: "en"
+            value: "Valid codes for gender variable"
+          - lang: "fr"
+            value: "Codes valides pour la variable genre"
+        categorySchemeReference:
+          urn: "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+          id: "categoryscheme-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "CategoryScheme"
+        codes:
+          - urn: "urn:ddi:example.agency:code-001:1.0.0"
+            id: "code-001"
+            agencyID: "example.agency"
+            version: "1.0.0"
+          - urn: "urn:ddi:example.agency:code-002:1.0.0"
+            id: "code-002"
+            agencyID: "example.agency"
+            version: "1.0.0"
+        isUniversallyUnique: true
+
+    Code:
+      type: object
+      description: |
+        A Code represents a valid value in a code list.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the code.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:312ea185-cf0a-4e10-93de-589e551ee98c:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the code.
+            When used with agencyID and version, forms an alternative identification to URN.
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+              description: The user identifier value
+            typeOfUserID:
+              type: string
+              description: The type of user identifier (e.g., ConstancesID)
+          description: User-defined identifier for the code
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this code.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the code.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        value:
+          type: string
+          description: The actual code value (e.g., "1", "2", "3")
+        categoryReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to the category associated with this code
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the code has a universally unique identifier
+      required:
+        - id
+        - value
+      example:
+        urn: "urn:ddi:example.agency:code-001:1.0.0"
+        id: "code-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        userID:
+          value: "GENDER_MALE"
+          typeOfUserID: "InternalID"
+        value: "1"
+        categoryReference:
+          urn: "urn:ddi:example.agency:category-001:1.0.0"
+          id: "category-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "Category"
+        label:
+          - lang: "en"
+            value: "Male"
+          - lang: "fr"
+            value: "Homme"
+        description:
+          - lang: "en"
+            value: "Male gender"
+          - lang: "fr"
+            value: "Genre masculin"
+        isUniversallyUnique: true
+
+    CategoryScheme:
+      type: object
+      description: |
+        A CategoryScheme is a collection of categories that provides structured vocabularies for categorical data.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the category scheme.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:a9945add-3292-4dec-aff6-860fa98f4bdf:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the category scheme.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this category scheme.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the category scheme.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Identifier"
+          description: List of identifiers for the categories contained in this scheme
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the category scheme has a universally unique identifier
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:categoryscheme-001:1.0.0"
+        id: "categoryscheme-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        label:
+          - lang: "en"
+            value: "Gender Categories"
+          - lang: "fr"
+            value: "Catégories de genre"
+        description:
+          - lang: "en"
+            value: "Categories for gender classification"
+          - lang: "fr"
+            value: "Catégories pour la classification du genre"
+        categories:
+          - urn: "urn:ddi:example.agency:category-001:1.0.0"
+            id: "category-001"
+            agencyID: "example.agency"
+            version: "1.0.0"
+          - urn: "urn:ddi:example.agency:category-002:1.0.0"
+            id: "category-002"
+            agencyID: "example.agency"
+            version: "1.0.0"
+        isUniversallyUnique: true
+
+    Category:
+      type: object
+      description: |
+        A Category represents a category in a category scheme.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the category.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:fr.inserm.constances:2356dd60-9c59-4ee1-9f5c-82f28dabde4a:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the category.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this category.
+            When used with id and version, forms an alternative identification to URN.
+            Example: "fr.inserm.constances"
+        version:
+          type: string
+          description: |
+            The version of the category.
+            When used with agencyID and id, forms an alternative identification to URN.
+            Example: "1.0.0"
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the category has a universally unique identifier
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:category-001:1.0.0"
+        id: "category-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        label:
+          - lang: "en"
+            value: "Male"
+          - lang: "fr"
+            value: "Homme"
+        description:
+          - lang: "en"
+            value: "Male gender category"
+          - lang: "fr"
+            value: "Catégorie de genre masculin"
+        isUniversallyUnique: true
+
+    Identifier:
+      type: object
+      description: |
+        An identifier for a DDI resource.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the resource.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+        id:
+          type: string
+          description: |
+            The unique identifier of the resource.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining the resource.
+            When used with id and version, forms an alternative identification to URN.
+        version:
+          type: string
+          description: |
+            The version of the resource.
+            When used with agencyID and id, forms an alternative identification to URN.
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:var-001:1.0.0"
+        id: "var-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+
+    VariableRepresentation:
+      type: object
+      description: The representation of a variable
+      properties:
+        codeRepresentation:
+          type: object
+          properties:
+            recommendedDataType:
+              type: string
+              enum: [String, Integer, Float, Double, Decimal, Date, DateTime, Boolean]
+              description: The recommended data type
+            codeListReference:
+              $ref: "#/components/schemas/Reference"
+              description: Reference to a code list
+          description: Code representation (for categorical variables)
+        numericRepresentation:
+          type: object
+          properties:
+            recommendedDataType:
+              type: string
+              enum: [Integer, Float, Double, Decimal]
+              description: The numeric data type
+            format:
+              type: string
+              description: Format specification (e.g., number format)
+          description: Numeric representation
+        textRepresentation:
+          type: object
+          properties:
+            recommendedDataType:
+              type: string
+              enum: [String, LongString]
+              description: The text data type
+            maxLength:
+              type: integer
+              description: Maximum length of the text
+          description: Text representation
+        dateRepresentation:
+          type: object
+          properties:
+            recommendedDataType:
+              type: string
+              enum: [Date, DateTime]
+              description: The date data type
+            format:
+              type: string
+              description: Date format specification
+          description: Date representation
+        type:
+          type: string
+          enum: [Numeric, Text, Date, DateTime, Boolean, Code]
+          description: The data type (for backward compatibility)
+        numericType:
+          type: string
+          enum: [Integer, Float, Double, Decimal]
+          description: The numeric type if type is Numeric (for backward compatibility)
+        textType:
+          type: string
+          enum: [String, LongString]
+          description: The text type if type is Text (for backward compatibility)
+        codeListReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to a code list if type is Code (for backward compatibility)
+        format:
+          type: string
+          description: Format specification (e.g., date format, number format) (for backward compatibility)
+
