@@ -1,0 +1,31 @@
+{
+  "name": "ddi-api",
+  "version": "1.0.0",
+  "description": "DDI RESTful API specification",
+  "scripts": {
+    "build:swagger": "node scripts/build-swagger.js",
+    "preview:swagger": "npx serve dist -p 8080",
+    "deploy": "npm run build:swagger && gh-pages -d dist"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.0.0",
+    "swagger-ui": "^5.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NicoLaval/DDI-API.git"
+  },
+  "keywords": [
+    "ddi",
+    "rest",
+    "api",
+    "openapi",
+    "swagger"
+  ],
+  "author":"NicoLaval",
+  "license": "MIT",
+  "scarfSettings": {
+    "enabled": false
+  }
+}
+
