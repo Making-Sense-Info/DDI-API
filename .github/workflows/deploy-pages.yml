@@ -29,10 +29,23 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: "20"
-          cache: "yarn"
 
-      - name: Install Yarn
-        run: corepack enable && corepack prepare yarn@stable --activate
+      - name: Setup Yarn 1.x
+        run: |
+          corepack disable || true
+          npm install -g yarn@1.22.22
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
