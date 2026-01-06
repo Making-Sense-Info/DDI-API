@@ -9,9 +9,10 @@ info:
     
     DDI is an international standard for describing statistical and social science data.
     
-    **Identification**: In DDI, resources can be identified either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
 servers:
-  - description: Example API Server
+  - description: Mock API Server
+    url: https://ddi-api-mock.onrender.com/ddi/v1
+  - description: Production API Server
     url: https://api.example.com/ddi/v1
 
 x-commons:
@@ -768,11 +769,17 @@ components:
       description: |
         Instructs the web service to return (or not) the artefacts referenced by the returned resources.
         
-        If true, returns referenced artefacts. If false or omitted, returns only the requested resources.
+        - `none` (default): Returns only references (URN, id, agencyID, version, typeOfObject)
+        - `children`: Returns full referenced objects at the root level, but references within those objects remain as references
+        - `all`: Returns full referenced objects recursively, including all nested references (e.g., variable -> codeList -> category)
       required: false
       schema:
-        type: boolean
-        default: false
+        type: string
+        enum:
+          - none
+          - children
+          - all
+        default: none
     offset:
       in: query
       name: offset
@@ -1148,13 +1155,31 @@ components:
           description: Descriptions in different languages
         conceptReference:
           $ref: "#/components/schemas/Reference"
-          description: Reference to the concept associated with this variable
+          description: |
+            Reference to the concept associated with this variable.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `concept` containing the full Concept object.
+        concept:
+          $ref: "#/components/schemas/Concept"
+          description: |
+            The full Concept object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
         representation:
           $ref: "#/components/schemas/VariableRepresentation"
           description: The representation of the variable (e.g., numeric, text, date, code)
         sourceVariableReference:
           $ref: "#/components/schemas/Reference"
-          description: Reference to the source variable if this is a derived variable
+          description: |
+            Reference to the source variable if this is a derived variable.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `sourceVariable` containing the full Variable object.
+        sourceVariable:
+          $ref: "#/components/schemas/Variable"
+          description: |
+            The full Variable object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
         isUniversallyUnique:
           type: boolean
           description: Whether the variable has a universally unique identifier
@@ -1263,7 +1288,16 @@ components:
           description: Formal definitions in different languages
         conceptSchemeReference:
           $ref: "#/components/schemas/Reference"
-          description: Reference to the concept scheme containing this concept
+          description: |
+            Reference to the concept scheme containing this concept.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `conceptScheme` containing the full ConceptScheme object.
+        conceptScheme:
+          $ref: "#/components/schemas/ConceptScheme"
+          description: |
+            The full ConceptScheme object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
         subclassOfReference:
           $ref: "#/components/schemas/Reference"
           description: |
@@ -1273,6 +1307,14 @@ components:
             then concept-001.1 is a child (subclass) of concept-001 (the parent).
             
             A concept can have 0 or 1 parent concept.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `subclassOf` containing the full Concept object.
+        subclassOf:
+          $ref: "#/components/schemas/Concept"
+          description: |
+            The full Concept object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
         isUniversallyUnique:
           type: boolean
           description: Whether the concept has a universally unique identifier
@@ -1847,7 +1889,16 @@ components:
           description: The actual code value (e.g., "1", "2", "3")
         categoryReference:
           $ref: "#/components/schemas/Reference"
-          description: Reference to the category associated with this code
+          description: |
+            Reference to the category associated with this code.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `category` containing the full Category object.
+        category:
+          $ref: "#/components/schemas/Category"
+          description: |
+            The full Category object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
         label:
           type: array
           items:
@@ -2077,7 +2128,16 @@ components:
               description: The recommended data type
             codeListReference:
               $ref: "#/components/schemas/Reference"
-              description: Reference to a code list
+              description: |
+                Reference to a code list.
+                
+                When `references` parameter is `children` or `all`, this property is replaced by `codeList` containing the full CodeList object.
+            codeList:
+              $ref: "#/components/schemas/CodeList"
+              description: |
+                The full CodeList object (returned when `references=children` or `references=all`).
+                
+                This property is only present when `references` is not `none`.
           description: Code representation (for categorical variables)
         numericRepresentation:
           type: object
