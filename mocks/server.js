@@ -587,11 +587,53 @@ app.get('/', (req, res) => {
     status: 'ok', 
     service: 'DDI API Mock Server',
     version: '1.0.0',
+    timestamp: new Date().toISOString(),
     endpoints: {
       health: '/health',
-      variables: '/ddi/v1/variables',
-      concepts: '/ddi/v1/concepts',
-      documentation: 'https://github.com/NicoLaval/DDI-API'
+      variables: {
+        list: '/ddi/v1/variables',
+        item: '/ddi/v1/variables/{variableID}'
+      },
+      concepts: {
+        list: '/ddi/v1/concepts',
+        item: '/ddi/v1/concepts/{conceptID}'
+      },
+      conceptSchemes: {
+        list: '/ddi/v1/concept-schemes',
+        item: '/ddi/v1/concept-schemes/{conceptSchemeID}'
+      },
+      variableSchemes: {
+        list: '/ddi/v1/variable-schemes',
+        item: '/ddi/v1/variable-schemes/{variableSchemeID}'
+      },
+      codeLists: {
+        list: '/ddi/v1/code-lists',
+        item: '/ddi/v1/code-lists/{codeListID}'
+      },
+      codeListSchemes: {
+        list: '/ddi/v1/code-list-schemes',
+        item: '/ddi/v1/code-list-schemes/{codeListSchemeID}'
+      },
+      categorySchemes: {
+        list: '/ddi/v1/category-schemes',
+        item: '/ddi/v1/category-schemes/{categorySchemeID}'
+      }
+    },
+    documentation: {
+      swaggerUI: 'https://nicolaval.github.io/DDI-API/',
+      endpoints: 'https://github.com/NicoLaval/DDI-API/blob/main/MOCK_API_ENDPOINTS.md',
+      deployment: 'https://github.com/NicoLaval/DDI-API/blob/main/MOCK_API_DEPLOYMENT.md'
+    },
+    queryParameters: {
+      references: {
+        description: 'Control how referenced objects are returned',
+        values: ['none', 'children', 'all'],
+        default: 'none'
+      },
+      filtering: {
+        description: 'Filter resources by various criteria',
+        supported: ['urn', 'agencyID', 'resourceID', 'version', 'offset', 'limit']
+      }
     }
   });
 });
