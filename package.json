@@ -5,9 +5,12 @@
   "scripts": {
     "build:swagger": "node scripts/build-swagger.js",
     "preview:swagger": "npx serve dist -p 8080",
+    "mock": "node mocks/server.js",
     "deploy": "yarn build:swagger && gh-pages -d dist"
   },
   "devDependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
     "gh-pages": "^6.0.0",
     "swagger-ui": "^5.9.0"
   },
