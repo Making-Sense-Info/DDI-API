@@ -1286,18 +1286,6 @@ components:
           items:
             $ref: "#/components/schemas/Description"
           description: Formal definitions in different languages
-        conceptSchemeReference:
-          $ref: "#/components/schemas/Reference"
-          description: |
-            Reference to the concept scheme containing this concept.
-            
-            When `references` parameter is `children` or `all`, this property is replaced by `conceptScheme` containing the full ConceptScheme object.
-        conceptScheme:
-          $ref: "#/components/schemas/ConceptScheme"
-          description: |
-            The full ConceptScheme object (returned when `references=children` or `references=all`).
-            
-            This property is only present when `references` is not `none`.
         subclassOfReference:
           $ref: "#/components/schemas/Reference"
           description: |
@@ -1790,9 +1778,6 @@ components:
           items:
             $ref: "#/components/schemas/Description"
           description: Descriptions in different languages
-        categorySchemeReference:
-          $ref: "#/components/schemas/Reference"
-          description: Reference to the category scheme used by this code list
         codes:
           type: array
           items:
