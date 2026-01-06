@@ -1,0 +1,58 @@
+{
+  "urn": "urn:ddi:example.agency:var-001:1.0.0",
+  "id": "var-001",
+  "agencyID": "example.agency",
+  "version": "1.0.0",
+  "userID": {
+    "value": "AGE_BASELINE",
+    "typeOfUserID": "InternalID"
+  },
+  "name": [
+    {
+      "lang": "en",
+      "value": "age_at_baseline"
+    },
+    {
+      "lang": "fr",
+      "value": "age_au_depart"
+    }
+  ],
+  "label": [
+    {
+      "lang": "en",
+      "value": "Age at baseline examination"
+    },
+    {
+      "lang": "fr",
+      "value": "Âge à l'examen de base"
+    }
+  ],
+  "description": [
+    {
+      "lang": "en",
+      "value": "Participant's age in years at the time of baseline examination"
+    },
+    {
+      "lang": "fr",
+      "value": "Âge du participant en années au moment de l'examen de base"
+    }
+  ],
+  "conceptReference": {
+    "urn": "urn:ddi:example.agency:concept-001:1.0.0",
+    "id": "concept-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "typeOfObject": "Concept"
+  },
+  "representation": {
+    "numericRepresentation": {
+      "recommendedDataType": "Integer",
+      "numberRange": {
+        "minimum": 18,
+        "maximum": 100
+      }
+    }
+  },
+  "isUniversallyUnique": true
+}
+

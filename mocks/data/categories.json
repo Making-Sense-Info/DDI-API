@@ -1,0 +1,54 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:category-001:1.0.0",
+    "id": "category-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Male"
+      },
+      {
+        "lang": "fr",
+        "value": "Masculin"
+      }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:category-002:1.0.0",
+    "id": "category-002",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Female"
+      },
+      {
+        "lang": "fr",
+        "value": "Féminin"
+      }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:category-003:1.0.0",
+    "id": "category-003",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Other"
+      },
+      {
+        "lang": "fr",
+        "value": "Autre"
+      }
+    ],
+    "isUniversallyUnique": true
+  }
+]
+

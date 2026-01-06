@@ -1,0 +1,60 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:categoryscheme-001:1.0.0",
+    "id": "categoryscheme-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Gender Categories"
+      },
+      {
+        "lang": "fr",
+        "value": "Catégories de sexe"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Gender Categories Scheme"
+      },
+      {
+        "lang": "fr",
+        "value": "Schéma de catégories de sexe"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Categories for gender classification"
+      },
+      {
+        "lang": "fr",
+        "value": "Catégories pour la classification du sexe"
+      }
+    ],
+    "categories": [
+      {
+        "urn": "urn:ddi:example.agency:category-001:1.0.0",
+        "id": "category-001",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      },
+      {
+        "urn": "urn:ddi:example.agency:category-002:1.0.0",
+        "id": "category-002",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      },
+      {
+        "urn": "urn:ddi:example.agency:category-003:1.0.0",
+        "id": "category-003",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      }
+    ],
+    "isUniversallyUnique": true
+  }
+]
+

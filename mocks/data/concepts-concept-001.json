@@ -1,0 +1,52 @@
+{
+  "urn": "urn:ddi:example.agency:concept-001:1.0.0",
+  "id": "concept-001",
+  "agencyID": "example.agency",
+  "version": "1.0.0",
+  "userID": {
+    "value": "CONCEPT_AGE",
+    "typeOfUserID": "InternalID"
+  },
+  "name": [
+    {
+      "lang": "en",
+      "value": "age"
+    },
+    {
+      "lang": "fr",
+      "value": "âge"
+    }
+  ],
+  "label": [
+    {
+      "lang": "en",
+      "value": "Age"
+    },
+    {
+      "lang": "fr",
+      "value": "Âge"
+    }
+  ],
+  "description": [
+    {
+      "lang": "en",
+      "value": "The length of time that a person has lived"
+    },
+    {
+      "lang": "fr",
+      "value": "La durée de vie d'une personne"
+    }
+  ],
+  "definition": [
+    {
+      "lang": "en",
+      "value": "Age is measured in years from birth"
+    },
+    {
+      "lang": "fr",
+      "value": "L'âge est mesuré en années depuis la naissance"
+    }
+  ],
+  "isUniversallyUnique": true
+}
+

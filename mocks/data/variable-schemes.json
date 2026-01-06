@@ -1,0 +1,64 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:variablescheme-001:1.0.0",
+    "id": "variablescheme-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "BASELINE_VARIABLES",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "Baseline Variables"
+      },
+      {
+        "lang": "fr",
+        "value": "Variables de base"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Baseline Variables Scheme"
+      },
+      {
+        "lang": "fr",
+        "value": "Schéma de variables de base"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "A collection of variables collected at baseline examination"
+      },
+      {
+        "lang": "fr",
+        "value": "Une collection de variables collectées lors de l'examen de base"
+      }
+    ],
+    "variables": [
+      {
+        "urn": "urn:ddi:example.agency:var-001:1.0.0",
+        "id": "var-001",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      },
+      {
+        "urn": "urn:ddi:example.agency:var-002:1.0.0",
+        "id": "var-002",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      },
+      {
+        "urn": "urn:ddi:example.agency:var-003:1.0.0",
+        "id": "var-003",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      }
+    ],
+    "isUniversallyUnique": true
+  }
+]
+

@@ -1,0 +1,163 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:concept-001:1.0.0",
+    "id": "concept-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "CONCEPT_AGE",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "age"
+      },
+      {
+        "lang": "fr",
+        "value": "âge"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Age"
+      },
+      {
+        "lang": "fr",
+        "value": "Âge"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "The length of time that a person has lived"
+      },
+      {
+        "lang": "fr",
+        "value": "La durée de vie d'une personne"
+      }
+    ],
+    "definition": [
+      {
+        "lang": "en",
+        "value": "Age is measured in years from birth"
+      },
+      {
+        "lang": "fr",
+        "value": "L'âge est mesuré en années depuis la naissance"
+      }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:concept-002:1.0.0",
+    "id": "concept-002",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "CONCEPT_GENDER",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "gender"
+      },
+      {
+        "lang": "fr",
+        "value": "sexe"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Gender"
+      },
+      {
+        "lang": "fr",
+        "value": "Sexe"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "A person's gender identity"
+      },
+      {
+        "lang": "fr",
+        "value": "L'identité de genre d'une personne"
+      }
+    ],
+    "definition": [
+      {
+        "lang": "en",
+        "value": "Gender refers to the social and cultural roles, behaviors, and identities that a society associates with being male, female, or other"
+      },
+      {
+        "lang": "fr",
+        "value": "Le sexe fait référence aux rôles sociaux et culturels, aux comportements et aux identités qu'une société associe au fait d'être masculin, féminin ou autre"
+      }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:concept-003:1.0.0",
+    "id": "concept-003",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "CONCEPT_BMI",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "body_mass_index"
+      },
+      {
+        "lang": "fr",
+        "value": "indice_masse_corporelle"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Body Mass Index"
+      },
+      {
+        "lang": "fr",
+        "value": "Indice de masse corporelle"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "A measure of body fat based on height and weight"
+      },
+      {
+        "lang": "fr",
+        "value": "Une mesure de la graisse corporelle basée sur la taille et le poids"
+      }
+    ],
+    "definition": [
+      {
+        "lang": "en",
+        "value": "BMI is calculated by dividing weight in kilograms by height in meters squared"
+      },
+      {
+        "lang": "fr",
+        "value": "L'IMC est calculé en divisant le poids en kilogrammes par la taille en mètres au carré"
+      }
+    ],
+    "subclassOfReference": {
+      "urn": "urn:ddi:example.agency:concept-004:1.0.0",
+      "id": "concept-004",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "Concept"
+    },
+    "isUniversallyUnique": true
+  }
+]
+

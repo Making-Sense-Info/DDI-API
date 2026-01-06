@@ -1,0 +1,100 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:codelist-001:1.0.0",
+    "id": "codelist-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "GENDER_CODES",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "gender_codes"
+      },
+      {
+        "lang": "fr",
+        "value": "codes_sexe"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Gender Codes"
+      },
+      {
+        "lang": "fr",
+        "value": "Codes de sexe"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Valid codes for gender variable"
+      },
+      {
+        "lang": "fr",
+        "value": "Codes valides pour la variable sexe"
+      }
+    ],
+    "codes": [
+      {
+        "urn": "urn:ddi:example.agency:code-001:1.0.0",
+        "id": "code-001",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "userID": {
+          "value": "GENDER_M",
+          "typeOfUserID": "InternalID"
+        },
+        "categoryReference": {
+          "urn": "urn:ddi:example.agency:category-001:1.0.0",
+          "id": "category-001",
+          "agencyID": "example.agency",
+          "version": "1.0.0",
+          "typeOfObject": "Category"
+        },
+        "value": "M"
+      },
+      {
+        "urn": "urn:ddi:example.agency:code-002:1.0.0",
+        "id": "code-002",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "userID": {
+          "value": "GENDER_F",
+          "typeOfUserID": "InternalID"
+        },
+        "categoryReference": {
+          "urn": "urn:ddi:example.agency:category-002:1.0.0",
+          "id": "category-002",
+          "agencyID": "example.agency",
+          "version": "1.0.0",
+          "typeOfObject": "Category"
+        },
+        "value": "F"
+      },
+      {
+        "urn": "urn:ddi:example.agency:code-003:1.0.0",
+        "id": "code-003",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "userID": {
+          "value": "GENDER_O",
+          "typeOfUserID": "InternalID"
+        },
+        "categoryReference": {
+          "urn": "urn:ddi:example.agency:category-003:1.0.0",
+          "id": "category-003",
+          "agencyID": "example.agency",
+          "version": "1.0.0",
+          "typeOfObject": "Category"
+        },
+        "value": "O"
+      }
+    ],
+    "isUniversallyUnique": true
+  }
+]
+

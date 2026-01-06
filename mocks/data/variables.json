@@ -1,0 +1,177 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:var-001:1.0.0",
+    "id": "var-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "AGE_BASELINE",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "age_at_baseline"
+      },
+      {
+        "lang": "fr",
+        "value": "age_au_depart"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Age at baseline examination"
+      },
+      {
+        "lang": "fr",
+        "value": "Âge à l'examen de base"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Participant's age in years at the time of baseline examination"
+      },
+      {
+        "lang": "fr",
+        "value": "Âge du participant en années au moment de l'examen de base"
+      }
+    ],
+    "conceptReference": {
+      "urn": "urn:ddi:example.agency:concept-001:1.0.0",
+      "id": "concept-001",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "Concept"
+    },
+    "representation": {
+      "numericRepresentation": {
+        "recommendedDataType": "Integer",
+        "numberRange": {
+          "minimum": 18,
+          "maximum": 100
+        }
+      }
+    },
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:var-002:1.0.0",
+    "id": "var-002",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "GENDER",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "gender"
+      },
+      {
+        "lang": "fr",
+        "value": "sexe"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Gender"
+      },
+      {
+        "lang": "fr",
+        "value": "Sexe"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Participant's gender"
+      },
+      {
+        "lang": "fr",
+        "value": "Sexe du participant"
+      }
+    ],
+    "conceptReference": {
+      "urn": "urn:ddi:example.agency:concept-002:1.0.0",
+      "id": "concept-002",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "Concept"
+    },
+    "representation": {
+      "codeRepresentation": {
+        "recommendedDataType": "String",
+        "codeListReference": {
+          "urn": "urn:ddi:example.agency:codelist-001:1.0.0",
+          "id": "codelist-001",
+          "agencyID": "example.agency",
+          "version": "1.0.0",
+          "typeOfObject": "CodeList"
+        }
+      }
+    },
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:var-003:1.0.0",
+    "id": "var-003",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "userID": {
+      "value": "BMI",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      {
+        "lang": "en",
+        "value": "body_mass_index"
+      },
+      {
+        "lang": "fr",
+        "value": "indice_masse_corporelle"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Body Mass Index"
+      },
+      {
+        "lang": "fr",
+        "value": "Indice de masse corporelle"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Body Mass Index calculated as weight (kg) divided by height (m) squared"
+      },
+      {
+        "lang": "fr",
+        "value": "Indice de masse corporelle calculé comme le poids (kg) divisé par la taille (m) au carré"
+      }
+    ],
+    "conceptReference": {
+      "urn": "urn:ddi:example.agency:concept-003:1.0.0",
+      "id": "concept-003",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "Concept"
+    },
+    "representation": {
+      "numericRepresentation": {
+        "recommendedDataType": "Float",
+        "numberRange": {
+          "minimum": 10.0,
+          "maximum": 50.0
+        }
+      }
+    },
+    "isUniversallyUnique": true
+  }
+]
+
