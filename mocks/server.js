@@ -12,6 +12,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const { parse } = require('js2xmlparser');
 
 const app = express();
 const PORT = process.env.PORT || 4010;
@@ -362,6 +363,42 @@ function resolveReferences(obj, level, startDepth = 0) {
   return processObject(resolved, startDepth);
 }
 
+// Helper to determine response format based on Accept header
+function getResponseFormat(req) {
+  const accept = req.headers.accept || '';
+  if (accept.includes('application/vnd.ddi.structure+xml') || accept.includes('application/xml') || accept.includes('text/xml')) {
+    return 'xml';
+  }
+  return 'json';
+}
+
+// Helper to send response in appropriate format
+function sendResponse(req, res, data, rootElementName) {
+  const format = getResponseFormat(req);
+  
+  if (format === 'xml') {
+    res.set('Content-Type', 'application/vnd.ddi.structure+xml;version=3.3');
+    try {
+      const xml = parse(rootElementName || 'response', data, {
+        declaration: {
+          include: true,
+          encoding: 'UTF-8'
+        },
+        format: {
+          doubleQuotes: true,
+          indentBy: '  '
+        }
+      });
+      res.send(xml);
+    } catch (error) {
+      console.error('XML conversion error:', error);
+      res.json(data); // Fallback to JSON on error
+    }
+  } else {
+    res.json(data);
+  }
+}
+
 // Variables endpoints
 app.get('/ddi/v1/variables', (req, res) => {
   const references = req.query.references || 'none';
@@ -373,9 +410,9 @@ app.get('/ddi/v1/variables', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'variables');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'variables');
   }
 });
 
@@ -386,7 +423,7 @@ app.get('/ddi/v1/variables/:variableID', (req, res) => {
   const variable = findById(data, variableID);
   if (variable) {
     const resolved = resolveReferences(variable, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'variable');
   } else {
     res.status(404).json({ error: 'Variable not found' });
   }
@@ -403,9 +440,9 @@ app.get('/ddi/v1/concepts', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'concepts');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'concepts');
   }
 });
 
@@ -416,7 +453,7 @@ app.get('/ddi/v1/concepts/:conceptID', (req, res) => {
   const concept = findById(data, conceptID);
   if (concept) {
     const resolved = resolveReferences(concept, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'concept');
   } else {
     res.status(404).json({ error: 'Concept not found' });
   }
@@ -433,9 +470,9 @@ app.get('/ddi/v1/concept-schemes', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'conceptSchemes');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'conceptSchemes');
   }
 });
 
@@ -446,7 +483,7 @@ app.get('/ddi/v1/concept-schemes/:conceptSchemeID', (req, res) => {
   const scheme = findById(data, conceptSchemeID);
   if (scheme) {
     const resolved = resolveReferences(scheme, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'conceptScheme');
   } else {
     res.status(404).json({ error: 'Concept scheme not found' });
   }
@@ -463,9 +500,9 @@ app.get('/ddi/v1/variable-schemes', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'variableSchemes');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'variableSchemes');
   }
 });
 
@@ -476,7 +513,7 @@ app.get('/ddi/v1/variable-schemes/:variableSchemeID', (req, res) => {
   const scheme = findById(data, variableSchemeID);
   if (scheme) {
     const resolved = resolveReferences(scheme, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'variableScheme');
   } else {
     res.status(404).json({ error: 'Variable scheme not found' });
   }
@@ -493,9 +530,9 @@ app.get('/ddi/v1/code-lists', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'codeLists');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'codeLists');
   }
 });
 
@@ -506,7 +543,7 @@ app.get('/ddi/v1/code-lists/:codeListID', (req, res) => {
   const codeList = findById(data, codeListID);
   if (codeList) {
     const resolved = resolveReferences(codeList, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'codeList');
   } else {
     res.status(404).json({ error: 'Code list not found' });
   }
@@ -523,9 +560,9 @@ app.get('/ddi/v1/code-list-schemes', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'codeListSchemes');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'codeListSchemes');
   }
 });
 
@@ -536,7 +573,7 @@ app.get('/ddi/v1/code-list-schemes/:codeListSchemeID', (req, res) => {
   const scheme = findById(data, codeListSchemeID);
   if (scheme) {
     const resolved = resolveReferences(scheme, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'codeListScheme');
   } else {
     res.status(404).json({ error: 'Code list scheme not found' });
   }
@@ -553,9 +590,9 @@ app.get('/ddi/v1/category-schemes', (req, res) => {
   // Resolve references if requested
   if (data && references !== 'none') {
     const resolved = data.map(item => resolveReferences(item, references));
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'categorySchemes');
   } else {
-    res.json(data || []);
+    sendResponse(req, res, data || [], 'categorySchemes');
   }
 });
 
@@ -566,7 +603,7 @@ app.get('/ddi/v1/category-schemes/:categorySchemeID', (req, res) => {
   const scheme = findById(data, categorySchemeID);
   if (scheme) {
     const resolved = resolveReferences(scheme, references);
-    res.json(resolved);
+    sendResponse(req, res, resolved, 'categoryScheme');
   } else {
     res.status(404).json({ error: 'Category scheme not found' });
   }
