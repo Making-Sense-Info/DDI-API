@@ -658,8 +658,7 @@ app.get('/', (req, res) => {
     },
     documentation: {
       swaggerUI: 'https://nicolaval.github.io/DDI-API/',
-      endpoints: 'https://github.com/NicoLaval/DDI-API/blob/main/MOCK_API_ENDPOINTS.md',
-      deployment: 'https://github.com/NicoLaval/DDI-API/blob/main/MOCK_API_DEPLOYMENT.md'
+      endpoints: 'https://github.com/NicoLaval/DDI-API/blob/main/docs/MOCK_API_ENDPOINTS.md'
     },
     queryParameters: {
       references: {
