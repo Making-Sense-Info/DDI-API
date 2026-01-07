@@ -674,8 +674,8 @@ app.get('/', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 DDI API Mock Server running on http://localhost:${PORT}`);
+app.listen(PORT, '127.0.0.1', () => {
+  console.log(`🚀 DDI API Mock Server running on http://127.0.0.1:${PORT}`);
   console.log(`📄 Serving mock data from: ${MOCKS_DIR}`);
   console.log(`📋 OpenAPI spec: ${SPEC_PATH}`);
 });
