@@ -11,7 +11,7 @@ info:
     
 servers:
   - description: Mock API Server
-    url: https://ddi-api.making-sense.info/ddi/v1
+    url: http://ddi-api.making-sense.info/ddi/v1
 
 x-commons:
   common_responses: &common_responses
