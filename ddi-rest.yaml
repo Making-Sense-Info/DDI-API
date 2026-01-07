@@ -11,9 +11,7 @@ info:
     
 servers:
   - description: Mock API Server
-    url: https://ddi-api-mock.onrender.com/ddi/v1
-  - description: Production API Server
-    url: https://api.example.com/ddi/v1
+    url: https://ddi-api.making-sense.info/ddi/v1
 
 x-commons:
   common_responses: &common_responses
