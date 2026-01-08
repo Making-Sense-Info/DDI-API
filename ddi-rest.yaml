@@ -391,6 +391,28 @@ paths:
         "200":
           $ref: "#/components/responses/200-category-scheme"
 
+  /search/labels:
+    get:
+      summary: "Search resources by label"
+      tags:
+        - Search
+      description: |
+        Search for DDI resources (variables, concepts, schemes, code lists, categories) by matching their labels.
+        
+        The search is case-insensitive and matches labels in the specified language. By default, searches are performed in English.
+        
+        Results include the resource type, identifier, and the matching label.
+      parameters:
+        - $ref: "#/components/parameters/searchQuery"
+        - $ref: "#/components/parameters/searchLang"
+        - $ref: "#/components/parameters/searchType"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-label-search"
+
 components:
   parameters:
     agencyID:
@@ -799,6 +821,52 @@ components:
         minimum: 1
         maximum: 1000
         default: 100
+    searchQuery:
+      in: query
+      name: q
+      description: |
+        Search query string to match against resource labels.
+        The search is case-insensitive and performs partial matching.
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        example: "age"
+    searchLang:
+      in: query
+      name: lang
+      description: |
+        Language code for label search. Only labels in the specified language will be searched.
+      required: false
+      schema:
+        type: string
+        enum:
+          - en
+          - fr
+        default: en
+        example: "en"
+    searchType:
+      in: query
+      name: type
+      description: |
+        Filter results by resource type. If not specified, all resource types are searched.
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - Variable
+            - Concept
+            - ConceptScheme
+            - VariableScheme
+            - CodeList
+            - CodeListScheme
+            - CategoryScheme
+            - Category
+        style: form
+        explode: false
+        example: ["Variable", "Concept"]
     urn:
       in: query
       name: urn
@@ -1068,6 +1136,26 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/CategoryScheme"
+    "200-label-search":
+      description: OK - Label search results
+      content:
+        application/vnd.ddi.structure+xml;version=3.3:
+          schema:
+            type: array
+            xml:
+              name: searchResults
+            items:
+              $ref: "#/components/schemas/LabelSearchResult"
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/LabelSearchResult"
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/LabelSearchResult"
     "204":
       description: No content
     "304":
@@ -2063,6 +2151,59 @@ components:
             value: "Catégorie de genre masculin"
         isUniversallyUnique: true
 
+    LabelSearchResult:
+      type: object
+      description: |
+        A search result containing a resource that matches the label search query.
+      properties:
+        type:
+          type: string
+          enum:
+            - Variable
+            - Concept
+            - ConceptScheme
+            - VariableScheme
+            - CodeList
+            - CodeListScheme
+            - CategoryScheme
+            - Category
+          description: The type of DDI resource
+        urn:
+          type: string
+          description: The URN of the resource
+          example: "urn:ddi:example.agency:var-001:1.0.0"
+        id:
+          type: string
+          description: The identifier of the resource
+          example: "var-001"
+        agencyID:
+          type: string
+          description: The agency ID of the resource
+          example: "example.agency"
+        version:
+          type: string
+          description: The version of the resource
+          example: "1.0.0"
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: The labels of the resource (in all languages)
+        matchedLabel:
+          type: object
+          properties:
+            lang:
+              type: string
+              example: "en"
+            value:
+              type: string
+              example: "Age at baseline examination"
+          description: The specific label that matched the search query
+      required:
+        - type
+        - urn
+        - id
+        - matchedLabel
     Identifier:
       type: object
       description: |

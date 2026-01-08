@@ -609,6 +609,127 @@ app.get('/ddi/v1/category-schemes/:categorySchemeID', (req, res) => {
   }
 });
 
+// Search endpoint - Search by labels
+app.get('/ddi/v1/search/labels', (req, res) => {
+  const query = req.query.q;
+  const lang = req.query.lang || 'en';
+  const types = req.query.type ? (Array.isArray(req.query.type) ? req.query.type : [req.query.type]) : null;
+  const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit) || 100;
+
+  if (!query || query.trim().length === 0) {
+    return res.status(400).json({ error: 'Query parameter "q" is required' });
+  }
+
+  if (lang !== 'en' && lang !== 'fr') {
+    return res.status(400).json({ error: 'Language parameter "lang" must be "en" or "fr"' });
+  }
+
+  const searchQuery = query.toLowerCase().trim();
+  const results = [];
+
+  // Helper function to search labels in a resource
+  function searchInResource(resource, resourceType) {
+    if (!resource || !resource.label || !Array.isArray(resource.label)) {
+      return null;
+    }
+
+    // Find matching label in the specified language
+    const matchingLabel = resource.label.find(l => l.lang === lang && 
+      l.value && l.value.toLowerCase().includes(searchQuery));
+
+    if (matchingLabel) {
+      return {
+        type: resourceType,
+        urn: resource.urn,
+        id: resource.id,
+        agencyID: resource.agencyID,
+        version: resource.version,
+        label: resource.label,
+        matchedLabel: matchingLabel
+      };
+    }
+    return null;
+  }
+
+  // Search in variables
+  if (!types || types.includes('Variable')) {
+    const variables = loadMock('variables.json') || [];
+    variables.forEach(variable => {
+      const result = searchInResource(variable, 'Variable');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in concepts
+  if (!types || types.includes('Concept')) {
+    const concepts = loadMock('concepts.json') || [];
+    concepts.forEach(concept => {
+      const result = searchInResource(concept, 'Concept');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in concept schemes
+  if (!types || types.includes('ConceptScheme')) {
+    const conceptSchemes = loadMock('concept-schemes.json') || [];
+    conceptSchemes.forEach(scheme => {
+      const result = searchInResource(scheme, 'ConceptScheme');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in variable schemes
+  if (!types || types.includes('VariableScheme')) {
+    const variableSchemes = loadMock('variable-schemes.json') || [];
+    variableSchemes.forEach(scheme => {
+      const result = searchInResource(scheme, 'VariableScheme');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in code lists
+  if (!types || types.includes('CodeList')) {
+    const codeLists = loadMock('code-lists.json') || [];
+    codeLists.forEach(codeList => {
+      const result = searchInResource(codeList, 'CodeList');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in code list schemes
+  if (!types || types.includes('CodeListScheme')) {
+    const codeListSchemes = loadMock('code-list-schemes.json') || [];
+    codeListSchemes.forEach(scheme => {
+      const result = searchInResource(scheme, 'CodeListScheme');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in category schemes
+  if (!types || types.includes('CategoryScheme')) {
+    const categorySchemes = loadMock('category-schemes.json') || [];
+    categorySchemes.forEach(scheme => {
+      const result = searchInResource(scheme, 'CategoryScheme');
+      if (result) results.push(result);
+    });
+  }
+
+  // Search in categories
+  if (!types || types.includes('Category')) {
+    const categories = loadMock('categories.json') || [];
+    categories.forEach(category => {
+      const result = searchInResource(category, 'Category');
+      if (result) results.push(result);
+    });
+  }
+
+  // Apply pagination
+  const paginatedResults = results.slice(offset, offset + limit);
+
+  sendResponse(req, res, paginatedResults, 'searchResults');
+});
+
 // Health check endpoint (for Render and other services to prevent sleep)
 app.get('/health', (req, res) => {
   res.json({ 

@@ -45,6 +45,9 @@ All endpoints from the OpenAPI specification are implemented:
 - `GET /ddi/v1/code-list-schemes/{codeListSchemeID}`
 - `GET /ddi/v1/category-schemes/{categorySchemeID}`
 
+**Search Endpoints**:
+- `GET /ddi/v1/search/labels` - Search resources by label
+
 **Utility Endpoints**:
 - `GET /health` - Health check
 - `GET /` - Service information
@@ -123,6 +126,89 @@ curl -H "Accept: application/xml" http://localhost:4010/ddi/v1/concepts/concept-
 # Get code lists (XML)
 curl -H "Accept: application/xml" http://localhost:4010/ddi/v1/code-lists
 ```
+
+## Search Endpoints
+
+### Search by Labels
+
+The `/ddi/v1/search/labels` endpoint allows you to search for DDI resources by matching their labels.
+
+**Endpoint:** `GET /ddi/v1/search/labels`
+
+**Parameters:**
+- **`q`** (required): Search query string. Case-insensitive partial matching.
+- **`lang`** (optional): Language code for label search (`en` or `fr`). Default: `en`
+- **`type`** (optional): Filter results by resource type. Can be one or more of: `Variable`, `Concept`, `ConceptScheme`, `VariableScheme`, `CodeList`, `CodeListScheme`, `CategoryScheme`, `Category`
+- **`offset`** (optional): Pagination offset. Default: `0`
+- **`limit`** (optional): Maximum number of results. Default: `100`, Maximum: `1000`
+
+**Examples:**
+
+```bash
+# Search for "age" in English labels (default)
+curl "http://localhost:4010/ddi/v1/search/labels?q=age"
+
+# Search for "âge" in French labels
+curl "http://localhost:4010/ddi/v1/search/labels?q=âge&lang=fr"
+
+# Search only in Variables
+curl "http://localhost:4010/ddi/v1/search/labels?q=baseline&type=Variable"
+
+# Search in multiple resource types
+curl "http://localhost:4010/ddi/v1/search/labels?q=gender&type=Variable&type=Concept"
+
+# Search with pagination
+curl "http://localhost:4010/ddi/v1/search/labels?q=age&offset=0&limit=10"
+
+# Search in XML format
+curl -H "Accept: application/xml" "http://localhost:4010/ddi/v1/search/labels?q=age"
+```
+
+**Response Format:**
+
+Each result contains:
+- `type`: The resource type (Variable, Concept, ConceptScheme, etc.)
+- `urn`: The URN of the resource
+- `id`: The identifier of the resource
+- `agencyID`: The agency ID
+- `version`: The version
+- `label`: All labels for the resource (in all languages)
+- `matchedLabel`: The specific label that matched the search query (in the specified language)
+
+**Example Response:**
+
+```json
+[
+  {
+    "type": "Variable",
+    "urn": "urn:ddi:example.agency:var-001:1.0.0",
+    "id": "var-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Age at baseline examination"
+      },
+      {
+        "lang": "fr",
+        "value": "Âge à l'examen de base"
+      }
+    ],
+    "matchedLabel": {
+      "lang": "en",
+      "value": "Age at baseline examination"
+    }
+  }
+]
+```
+
+**Notes:**
+- The search is case-insensitive
+- Partial matching is performed (e.g., searching for "age" will match "Age at baseline" and "average")
+- Only labels in the specified language (`lang` parameter) are searched
+- If no `type` parameter is provided, all resource types are searched
+- Results are paginated using `offset` and `limit` parameters
 
 ### Understanding the `references` Parameter
 
