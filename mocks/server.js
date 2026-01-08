@@ -366,9 +366,13 @@ function resolveReferences(obj, level, startDepth = 0) {
 // Helper to determine response format based on Accept header
 function getResponseFormat(req) {
   const accept = req.headers.accept || '';
-  if (accept.includes('application/vnd.ddi.structure+xml') || accept.includes('application/xml') || accept.includes('text/xml')) {
+  // Only return XML if explicitly requested (not for text/html from browsers)
+  if (accept.includes('application/vnd.ddi.structure+xml') || 
+      (accept.includes('application/xml') && !accept.includes('text/html')) || 
+      (accept.includes('text/xml') && !accept.includes('text/html'))) {
     return 'xml';
   }
+  // Default to JSON (even if browser sends text/html)
   return 'json';
 }
 
@@ -392,9 +396,12 @@ function sendResponse(req, res, data, rootElementName) {
       res.send(xml);
     } catch (error) {
       console.error('XML conversion error:', error);
+      res.set('Content-Type', 'application/json');
       res.json(data); // Fallback to JSON on error
     }
   } else {
+    // Set JSON Content-Type (same as other endpoints)
+    res.set('Content-Type', 'application/json');
     res.json(data);
   }
 }
