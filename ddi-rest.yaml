@@ -899,6 +899,39 @@ components:
               wrapped: true
             items:
               $ref: "#/components/schemas/Variable"
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <g:ResourcePackage xmlns:c="ddi:conceptualcomponent:3_3" xmlns:d="ddi:datacollection:3_3" xmlns:g="ddi:group:3_3" xmlns:i="ddi:instance:3_3" xmlns:l="ddi:logicalproduct:3_3" xmlns:pi="ddi:physicalinstance:3_3" xmlns:r="ddi:reusable:3_3" xmlns:s="ddi:studyunit:3_3" xmlns="ddi:instance:3_3">
+               <l:Variable isUniversallyUnique="true">
+                  <r:URN>urn:ddi:example.agency:var-001:1.0.0</r:URN>
+                  <r:UserID typeOfUserID="InternalID">AGE_BASELINE</r:UserID>
+                  <l:VariableName>
+                     <r:String xml:lang="en">age_at_baseline</r:String>
+                  </l:VariableName>
+                  <l:VariableName>
+                     <r:String xml:lang="fr">age_au_depart</r:String>
+                  </l:VariableName>
+                  <r:Label>
+                     <r:Content xml:lang="en">Age at baseline examination</r:Content>
+                     <r:Content xml:lang="fr">Âge à l'examen de base</r:Content>
+                  </r:Label>
+                  <r:Description>
+                     <r:Content xml:lang="en">Participant's age in years at the time of baseline examination</r:Content>
+                  </r:Description>
+                  <r:Description>
+                     <r:Content xml:lang="fr">Âge du participant en années au moment de l'examen de base</r:Content>
+                  </r:Description>
+                  <c:ConceptReference>
+                     <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
+                     <r:TypeOfObject>Concept</r:TypeOfObject>
+                  </c:ConceptReference>
+                  <l:Representation>
+                     <l:NumericRepresentation>
+                        <l:RecommendedDataType>Integer</l:RecommendedDataType>
+                     </l:NumericRepresentation>
+                  </l:Representation>
+               </l:Variable>
+            </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             type: array
@@ -919,6 +952,39 @@ components:
                 xml:
                   name: g:ResourcePackage
                   wrapped: true
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <g:ResourcePackage xmlns:c="ddi:conceptualcomponent:3_3" xmlns:d="ddi:datacollection:3_3" xmlns:g="ddi:group:3_3" xmlns:i="ddi:instance:3_3" xmlns:l="ddi:logicalproduct:3_3" xmlns:pi="ddi:physicalinstance:3_3" xmlns:r="ddi:reusable:3_3" xmlns:s="ddi:studyunit:3_3" xmlns="ddi:instance:3_3">
+               <l:Variable isUniversallyUnique="true">
+                  <r:URN>urn:ddi:example.agency:var-001:1.0.0</r:URN>
+                  <r:UserID typeOfUserID="InternalID">AGE_BASELINE</r:UserID>
+                  <l:VariableName>
+                     <r:String xml:lang="en">age_at_baseline</r:String>
+                  </l:VariableName>
+                  <l:VariableName>
+                     <r:String xml:lang="fr">age_au_depart</r:String>
+                  </l:VariableName>
+                  <r:Label>
+                     <r:Content xml:lang="en">Age at baseline examination</r:Content>
+                     <r:Content xml:lang="fr">Âge à l'examen de base</r:Content>
+                  </r:Label>
+                  <r:Description>
+                     <r:Content xml:lang="en">Participant's age in years at the time of baseline examination</r:Content>
+                  </r:Description>
+                  <r:Description>
+                     <r:Content xml:lang="fr">Âge du participant en années au moment de l'examen de base</r:Content>
+                  </r:Description>
+                  <c:ConceptReference>
+                     <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
+                     <r:TypeOfObject>Concept</r:TypeOfObject>
+                  </c:ConceptReference>
+                  <l:Representation>
+                     <l:NumericRepresentation>
+                        <l:RecommendedDataType>Integer</l:RecommendedDataType>
+                     </l:NumericRepresentation>
+                  </l:Representation>
+               </l:Variable>
+            </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/Variable"
@@ -937,6 +1003,20 @@ components:
               wrapped: true
             items:
               $ref: "#/components/schemas/Concept"
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <g:ResourcePackage xmlns:c="ddi:conceptualcomponent:3_3" xmlns:d="ddi:datacollection:3_3" xmlns:g="ddi:group:3_3" xmlns:i="ddi:instance:3_3" xmlns:l="ddi:logicalproduct:3_3" xmlns:pi="ddi:physicalinstance:3_3" xmlns:r="ddi:reusable:3_3" xmlns:s="ddi:studyunit:3_3" xmlns="ddi:instance:3_3">
+               <c:Concept isUniversallyUnique="true">
+                  <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
+                  <r:UserID typeOfUserID="InternalID">CONCEPT_AGE</r:UserID>
+                  <c:ConceptName>
+                     <r:String xml:lang="en">age</r:String>
+                  </c:ConceptName>
+                  <r:Label>
+                     <r:Content xml:lang="en">Age</r:Content>
+                  </r:Label>
+               </c:Concept>
+            </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             type: array
@@ -946,12 +1026,44 @@ components:
       description: OK - Single concept
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The concept is returned as a `c:Concept` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/Concept"
               - type: object
                 xml:
-                  name: concept
+                  name: g:ResourcePackage
+                  wrapped: true
+          example: |
+            <?xml version="1.0" encoding="UTF-8"?>
+            <g:ResourcePackage xmlns:c="ddi:conceptualcomponent:3_3" xmlns:d="ddi:datacollection:3_3" xmlns:g="ddi:group:3_3" xmlns:i="ddi:instance:3_3" xmlns:l="ddi:logicalproduct:3_3" xmlns:pi="ddi:physicalinstance:3_3" xmlns:r="ddi:reusable:3_3" xmlns:s="ddi:studyunit:3_3" xmlns="ddi:instance:3_3">
+               <c:Concept isUniversallyUnique="true">
+                  <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
+                  <r:UserID typeOfUserID="InternalID">CONCEPT_AGE</r:UserID>
+                  <c:ConceptName>
+                     <r:String xml:lang="en">age</r:String>
+                  </c:ConceptName>
+                  <c:ConceptName>
+                     <r:String xml:lang="fr">age</r:String>
+                  </c:ConceptName>
+                  <r:Label>
+                     <r:Content xml:lang="en">Age</r:Content>
+                     <r:Content xml:lang="fr">Âge</r:Content>
+                  </r:Label>
+                  <r:Description>
+                     <r:Content xml:lang="en">The length of time that a person has lived</r:Content>
+                  </r:Description>
+                  <r:Description>
+                     <r:Content xml:lang="fr">La durée de vie d'une personne</r:Content>
+                  </r:Description>
+                  <c:Definition>
+                     <r:Content xml:lang="en">Age is measured in years from birth</r:Content>
+                  </c:Definition>
+               </c:Concept>
+            </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/Concept"
@@ -959,10 +1071,15 @@ components:
       description: OK - List of concept schemes
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Concept schemes are returned as `c:ConceptScheme` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: conceptSchemes
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/ConceptScheme"
         application/vnd.ddi.structure+json;version=3.3:
@@ -974,12 +1091,17 @@ components:
       description: OK - Single concept scheme
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The concept scheme is returned as a `c:ConceptScheme` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/ConceptScheme"
               - type: object
                 xml:
-                  name: conceptScheme
+                  name: g:ResourcePackage
+                  wrapped: true
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/ConceptScheme"
@@ -987,10 +1109,15 @@ components:
       description: OK - List of variable schemes
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Variable schemes are returned as `l:VariableScheme` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: variableSchemes
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/VariableScheme"
         application/vnd.ddi.structure+json;version=3.3:
@@ -1002,12 +1129,17 @@ components:
       description: OK - Single variable scheme
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The variable scheme is returned as an `l:VariableScheme` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/VariableScheme"
               - type: object
                 xml:
-                  name: variableScheme
+                  name: g:ResourcePackage
+                  wrapped: true
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/VariableScheme"
@@ -1015,10 +1147,15 @@ components:
       description: OK - List of code list schemes
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Code list schemes are returned as `d:CodeListScheme` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: codeListSchemes
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/CodeListScheme"
         application/vnd.ddi.structure+json;version=3.3:
@@ -1030,12 +1167,17 @@ components:
       description: OK - Single code list scheme
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The code list scheme is returned as a `d:CodeListScheme` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/CodeListScheme"
               - type: object
                 xml:
-                  name: codeListScheme
+                  name: g:ResourcePackage
+                  wrapped: true
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/CodeListScheme"
@@ -1043,10 +1185,15 @@ components:
       description: OK - List of code lists
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Code lists are returned as `d:CodeList` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: codeLists
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/CodeList"
         application/vnd.ddi.structure+json;version=3.3:
@@ -1058,12 +1205,17 @@ components:
       description: OK - Single code list
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The code list is returned as a `d:CodeList` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/CodeList"
               - type: object
                 xml:
-                  name: codeList
+                  name: g:ResourcePackage
+                  wrapped: true
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/CodeList"
@@ -1071,10 +1223,15 @@ components:
       description: OK - List of category schemes
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Category schemes are returned as `l:CategoryScheme` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: categorySchemes
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/CategoryScheme"
         application/vnd.ddi.structure+json;version=3.3:
@@ -1086,12 +1243,17 @@ components:
       description: OK - Single category scheme
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The category scheme is returned as an `l:CategoryScheme` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/CategoryScheme"
               - type: object
                 xml:
-                  name: categoryScheme
+                  name: g:ResourcePackage
+                  wrapped: true
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/CategoryScheme"
@@ -1099,10 +1261,15 @@ components:
       description: OK - Label search results
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Search results are returned as elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: searchResults
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/LabelSearchResult"
         application/vnd.ddi.structure+json;version=3.3:
@@ -1144,69 +1311,100 @@ components:
         A Variable describes the structure of a data element within a dataset.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      xml:
+        name: l:Variable
       properties:
         urn:
           type: string
+          xml:
+            name: r:URN
           description: |
             The URN (Uniform Resource Name) of the variable.
             Format: "urn:ddi:{agency}:{id}:{version}"
             Example: "urn:ddi:fr.inserm.constances:45a4b2d2-c932-4b3c-a39f-1dba7cff24bd:1.0.0"
         id:
           type: string
+          xml:
+            name: r:ID
           description: |
             The unique identifier of the variable.
             When used with agencyID and version, forms an alternative identification to URN.
         userID:
           type: object
+          xml:
+            name: r:UserID
           properties:
             value:
               type: string
-              description: The user identifier value
             typeOfUserID:
               type: string
-              description: The type of user identifier (e.g., ConstancesID)
           description: User-defined identifier for the variable
         agencyID:
           type: string
+          xml:
+            name: r:AgencyID
           description: |
             The agency maintaining this variable.
             When used with id and version, forms an alternative identification to URN.
             Example: "fr.inserm.constances"
         version:
           type: string
+          xml:
+            name: r:Version
           description: |
             The version of the variable.
             When used with agencyID and id, forms an alternative identification to URN.
             Example: "1.0.0"
         name:
           type: array
+          xml:
+            name: l:VariableName
+            wrapped: true
           items:
+            xml:
+              name: r:String
             $ref: "#/components/schemas/Label"
           description: Variable names in different languages
         label:
           type: array
+          xml:
+            name: r:Label
+            wrapped: true
           items:
+            xml:
+              name: r:Content
             $ref: "#/components/schemas/Label"
           description: Labels in different languages
         description:
           type: array
+          xml:
+            name: r:Description
+            wrapped: true
           items:
+            xml:
+              name: r:Content
             $ref: "#/components/schemas/Description"
           description: Descriptions in different languages
         conceptReference:
           $ref: "#/components/schemas/Reference"
+          xml:
+            name: c:ConceptReference
           description: |
             Reference to the concept associated with this variable.
             
             When `references` parameter is `children` or `all`, this property is replaced by `concept` containing the full Concept object.
         concept:
           $ref: "#/components/schemas/Concept"
+          xml:
+            name: c:Concept
           description: |
             The full Concept object (returned when `references=children` or `references=all`).
             
             This property is only present when `references` is not `none`.
         representation:
           $ref: "#/components/schemas/VariableRepresentation"
+          xml:
+            name: l:Representation
           description: The representation of the variable (e.g., numeric, text, date, code)
         sourceVariableReference:
           $ref: "#/components/schemas/Reference"
@@ -1272,53 +1470,78 @@ components:
         A Concept defines an idea or category used to describe data.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      xml:
+        name: c:Concept
       properties:
         urn:
           type: string
+          xml:
+            name: r:URN
           description: |
             The URN (Uniform Resource Name) of the concept.
             Format: "urn:ddi:{agency}:{id}:{version}"
             Example: "urn:ddi:fr.inserm.constances:78816a68-f458-42ce-b72b-a8e3cb755cfb:1.0.0"
         id:
           type: string
+          xml:
+            name: r:ID
           description: |
             The unique identifier of the concept.
             When used with agencyID and version, forms an alternative identification to URN.
         userID:
           type: object
+          xml:
+            name: r:UserID
           properties:
             value:
               type: string
-              description: The user identifier value
             typeOfUserID:
               type: string
-              description: The type of user identifier (e.g., ConstancesID)
           description: User-defined identifier for the concept
         agencyID:
           type: string
+          xml:
+            name: r:AgencyID
           description: |
             The agency maintaining this concept.
             When used with id and version, forms an alternative identification to URN.
             Example: "fr.inserm.constances"
         version:
           type: string
+          xml:
+            name: r:Version
           description: |
             The version of the concept.
             When used with agencyID and id, forms an alternative identification to URN.
             Example: "1.0.0"
         name:
           type: array
+          xml:
+            name: c:ConceptName
+            wrapped: true
           items:
+            xml:
+              name: r:String
             $ref: "#/components/schemas/Label"
           description: Concept names in different languages
         label:
           type: array
+          xml:
+            name: r:Label
+            wrapped: true
           items:
+            xml:
+              name: r:Content
             $ref: "#/components/schemas/Label"
           description: Labels in different languages
         description:
           type: array
+          xml:
+            name: r:Description
+            wrapped: true
           items:
+            xml:
+              name: r:Content
             $ref: "#/components/schemas/Description"
           description: Descriptions in different languages
         definition:
@@ -1594,13 +1817,17 @@ components:
     Label:
       type: object
       description: A label in a specific language
+      xml:
+        name: r:Content
       properties:
         lang:
           type: string
+          xml:
+            attribute: true
+            name: xml:lang
           description: Language code (ISO 639-1)
         value:
           type: string
-          description: The label text
       required:
         - lang
         - value
@@ -1611,13 +1838,17 @@ components:
     Description:
       type: object
       description: A description in a specific language
+      xml:
+        name: r:Content
       properties:
         lang:
           type: string
+          xml:
+            attribute: true
+            name: xml:lang
           description: Language code (ISO 639-1)
         value:
           type: string
-          description: The description text
       required:
         - lang
         - value
@@ -1634,29 +1865,41 @@ components:
       properties:
         urn:
           type: string
+          xml:
+            name: r:URN
           description: |
             The URN of the referenced resource.
             Format: "urn:ddi:{agency}:{id}:{version}"
         id:
           type: string
+          xml:
+            name: r:ID
           description: |
             The identifier of the referenced resource.
             When used with agencyID and version, forms an alternative identification to URN.
         agencyID:
           type: string
+          xml:
+            name: r:AgencyID
           description: |
             The agency maintaining the referenced resource.
             When used with id and version, forms an alternative identification to URN.
         version:
           type: string
+          xml:
+            name: r:Version
           description: |
             The version of the referenced resource.
             When used with agencyID and id, forms an alternative identification to URN.
         typeOfObject:
           type: string
+          xml:
+            name: r:TypeOfObject
           description: The type of the referenced resource (e.g., Concept, Variable, ConceptScheme, CodeList, CodeListScheme, CategoryScheme, Category)
         type:
           type: string
+          xml:
+            name: r:Type
           description: Alias for typeOfObject (for backward compatibility)
       required:
         - id
@@ -2196,22 +2439,32 @@ components:
     VariableRepresentation:
       type: object
       description: The representation of a variable
+      xml:
+        name: l:Representation
       properties:
         codeRepresentation:
           type: object
+          xml:
+            name: l:CodeRepresentation
           properties:
             recommendedDataType:
               type: string
+              xml:
+                name: l:RecommendedDataType
               enum: [String, Integer, Float, Double, Decimal, Date, DateTime, Boolean]
               description: The recommended data type
             codeListReference:
               $ref: "#/components/schemas/Reference"
+              xml:
+                name: l:CodeListReference
               description: |
                 Reference to a code list.
                 
                 When `references` parameter is `children` or `all`, this property is replaced by `codeList` containing the full CodeList object.
             codeList:
               $ref: "#/components/schemas/CodeList"
+              xml:
+                name: d:CodeList
               description: |
                 The full CodeList object (returned when `references=children` or `references=all`).
                 
@@ -2219,35 +2472,53 @@ components:
           description: Code representation (for categorical variables)
         numericRepresentation:
           type: object
+          xml:
+            name: l:NumericRepresentation
           properties:
             recommendedDataType:
               type: string
+              xml:
+                name: l:RecommendedDataType
               enum: [Integer, Float, Double, Decimal]
               description: The numeric data type
             format:
               type: string
+              xml:
+                name: l:Format
               description: Format specification (e.g., number format)
           description: Numeric representation
         textRepresentation:
           type: object
+          xml:
+            name: l:TextRepresentation
           properties:
             recommendedDataType:
               type: string
+              xml:
+                name: l:RecommendedDataType
               enum: [String, LongString]
               description: The text data type
             maxLength:
               type: integer
+              xml:
+                name: l:MaxLength
               description: Maximum length of the text
           description: Text representation
         dateRepresentation:
           type: object
+          xml:
+            name: l:DateRepresentation
           properties:
             recommendedDataType:
               type: string
+              xml:
+                name: l:RecommendedDataType
               enum: [Date, DateTime]
               description: The date data type
             format:
               type: string
+              xml:
+                name: l:Format
               description: Date format specification
           description: Date representation
         type:
