@@ -12,7 +12,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { parse } = require('js2xmlparser');
+const { convertToDDIXML, getRootElementName } = require('./ddi-xml-converter');
 
 const app = express();
 const PORT = process.env.PORT || 4010;
@@ -366,42 +366,54 @@ function resolveReferences(obj, level, startDepth = 0) {
 // Helper to determine response format based on Accept header
 function getResponseFormat(req) {
   const accept = req.headers.accept || '';
-  // Only return XML if explicitly requested (not for text/html from browsers)
-  if (accept.includes('application/vnd.ddi.structure+xml') || 
-      (accept.includes('application/xml') && !accept.includes('text/html')) || 
-      (accept.includes('text/xml') && !accept.includes('text/html'))) {
+  // Only accept DDI-specific formats
+  if (accept.includes('application/vnd.ddi.structure+xml;version=3.3')) {
     return 'xml';
   }
-  // Default to JSON (even if browser sends text/html)
-  return 'json';
+  if (accept.includes('application/vnd.ddi.structure+json;version=3.3')) {
+    return 'json';
+  }
+  // Default to JSON DDI format if no Accept header
+  if (!accept || accept === '*/*') {
+    return 'json';
+  }
+  // Unsupported format
+  return null;
 }
 
 // Helper to send response in appropriate format
 function sendResponse(req, res, data, rootElementName) {
   const format = getResponseFormat(req);
   
+  if (format === null) {
+    // Unsupported format - return 406 Not Acceptable
+    res.status(406).json({
+      error: 'Not Acceptable',
+      message: 'Only application/vnd.ddi.structure+json;version=3.3 and application/vnd.ddi.structure+xml;version=3.3 are supported',
+      supportedFormats: [
+        'application/vnd.ddi.structure+json;version=3.3',
+        'application/vnd.ddi.structure+xml;version=3.3'
+      ]
+    });
+    return;
+  }
+  
   if (format === 'xml') {
     res.set('Content-Type', 'application/vnd.ddi.structure+xml;version=3.3');
     try {
-      const xml = parse(rootElementName || 'response', data, {
-        declaration: {
-          include: true,
-          encoding: 'UTF-8'
-        },
-        format: {
-          doubleQuotes: true,
-          indentBy: '  '
-        }
-      });
+      // Use DDI XML converter instead of generic XML parser
+      const xml = convertToDDIXML(data, rootElementName || getRootElementName(data));
       res.send(xml);
     } catch (error) {
-      console.error('XML conversion error:', error);
-      res.set('Content-Type', 'application/json');
-      res.json(data); // Fallback to JSON on error
+      console.error('DDI XML conversion error:', error);
+      res.status(500).json({
+        error: 'Internal Server Error',
+        message: 'Failed to convert response to DDI XML format'
+      });
     }
   } else {
-    // Set JSON Content-Type (same as other endpoints)
-    res.set('Content-Type', 'application/json');
+    // Set DDI JSON Content-Type
+    res.set('Content-Type', 'application/vnd.ddi.structure+json;version=3.3');
     res.json(data);
   }
 }

@@ -16,12 +16,14 @@ The mock server serves realistic data examples in both French and English, inclu
 
 ### Response Formats
 
-The mock API supports both **JSON** and **XML** formats:
+The mock API supports DDI-specific formats only:
 
-- **JSON** (default): `application/json` or `application/vnd.ddi.structure+json;version=3.3`
-- **XML**: `application/vnd.ddi.structure+xml;version=3.3`, `application/xml`, or `text/xml`
+- **DDI JSON** (default): `application/vnd.ddi.structure+json;version=3.3`
+- **DDI XML**: `application/vnd.ddi.structure+xml;version=3.3`
 
-The format is determined by the `Accept` header in your request. If no `Accept` header is provided, JSON is returned by default.
+The format is determined by the `Accept` header in your request. If no `Accept` header is provided, DDI JSON format is returned by default.
+
+**Note:** Generic formats (`application/json`, `application/xml`, `text/xml`) are not supported and will return a `406 Not Acceptable` error.
 
 ### All Endpoints Supported
 
@@ -64,10 +66,13 @@ The mock server will run on `http://localhost:4010`
 
 ### Test the Mock API
 
-**JSON (default):**
+**DDI JSON (default):**
 ```bash
-# Get all variables (JSON)
+# Get all variables (DDI JSON - default)
 curl http://localhost:4010/ddi/v1/variables
+
+# Explicit DDI JSON request
+curl -H "Accept: application/vnd.ddi.structure+json;version=3.3" http://localhost:4010/ddi/v1/variables
 
 # Get a specific variable (without references - default)
 curl http://localhost:4010/ddi/v1/variables/var-001
@@ -106,25 +111,25 @@ curl http://localhost:4010/ddi/v1/code-lists/codelist-001?references=all
 curl http://localhost:4010/health
 ```
 
-**XML:**
+**DDI XML:**
 ```bash
-# Get all variables (XML)
+# Get all variables (DDI XML)
 curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" http://localhost:4010/ddi/v1/variables
 
-# Get a specific variable (XML)
-curl -H "Accept: application/xml" http://localhost:4010/ddi/v1/variables/var-001
+# Get a specific variable (DDI XML)
+curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" http://localhost:4010/ddi/v1/variables/var-001
 
-# Get variable with references resolved (XML)
-curl -H "Accept: application/xml" "http://localhost:4010/ddi/v1/variables/var-001?references=all"
+# Get variable with references resolved (DDI XML)
+curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" "http://localhost:4010/ddi/v1/variables/var-001?references=all"
 
-# Get all concepts (XML)
-curl -H "Accept: application/xml" http://localhost:4010/ddi/v1/concepts
+# Get all concepts (DDI XML)
+curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" http://localhost:4010/ddi/v1/concepts
 
-# Get a specific concept (XML)
-curl -H "Accept: application/xml" http://localhost:4010/ddi/v1/concepts/concept-001
+# Get a specific concept (DDI XML)
+curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" http://localhost:4010/ddi/v1/concepts/concept-001
 
-# Get code lists (XML)
-curl -H "Accept: application/xml" http://localhost:4010/ddi/v1/code-lists
+# Get code lists (DDI XML)
+curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" http://localhost:4010/ddi/v1/code-lists
 ```
 
 ## Search Endpoints
@@ -160,8 +165,8 @@ curl "http://localhost:4010/ddi/v1/search/labels?q=gender&type=Variable&type=Con
 # Search with pagination
 curl "http://localhost:4010/ddi/v1/search/labels?q=age&offset=0&limit=10"
 
-# Search in XML format
-curl -H "Accept: application/xml" "http://localhost:4010/ddi/v1/search/labels?q=age"
+# Search in DDI XML format
+curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" "http://localhost:4010/ddi/v1/search/labels?q=age"
 ```
 
 **Response Format:**

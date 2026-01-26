@@ -28,35 +28,27 @@ To view and test the API specification locally:
 
 ### Accept Header
 
-The API supports multiple response formats. Use the `Accept` header to specify your preferred format:
+The API supports DDI-specific response formats only. Use the `Accept` header to specify your preferred format:
 
-**JSON (default):**
+**DDI JSON Format (default):**
 ```bash
-# Explicit JSON request
-curl -H "Accept: application/json" https://api.example.com/ddi/v1/variables
-
-# DDI-specific JSON format
-curl -H "Accept: application/vnd.ddi.structure+json;version=3.3" https://api.example.com/ddi/v1/variables
-
-# Default (JSON if no Accept header)
+# DDI JSON format (default if no Accept header)
 curl https://api.example.com/ddi/v1/variables
+
+# Explicit DDI JSON request
+curl -H "Accept: application/vnd.ddi.structure+json;version=3.3" https://api.example.com/ddi/v1/variables
 ```
 
-**XML:**
+**DDI XML Format:**
 ```bash
-# DDI-specific XML format (recommended)
+# DDI XML format
 curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" https://api.example.com/ddi/v1/variables
-
-# Generic XML formats
-curl -H "Accept: application/xml" https://api.example.com/ddi/v1/variables
-curl -H "Accept: text/xml" https://api.example.com/ddi/v1/variables
 ```
 
 **Supported Content Types:**
-- `application/json` - JSON format (default)
-- `application/vnd.ddi.structure+json;version=3.3` - DDI JSON format
-- `application/vnd.ddi.structure+xml;version=3.3` - DDI XML format (recommended for XML)
-- `application/xml` - Generic XML format
-- `text/xml` - Generic XML format
+- `application/vnd.ddi.structure+json;version=3.3` - DDI JSON format (default)
+- `application/vnd.ddi.structure+xml;version=3.3` - DDI XML format
 
-**Note:** If no `Accept` header is provided, the API returns JSON by default.
+**Note:** 
+- If no `Accept` header is provided, the API returns DDI JSON format by default.
+- Generic formats (`application/json`, `application/xml`, `text/xml`) are not supported and will return a `406 Not Acceptable` error.
