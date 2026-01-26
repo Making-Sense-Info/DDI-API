@@ -888,18 +888,18 @@ components:
       description: OK - List of variables
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Variables are returned as `l:Variable` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: variables
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/Variable"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Variable"
-        application/json:
           schema:
             type: array
             items:
@@ -908,34 +908,36 @@ components:
       description: OK - Single variable
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            The variable is returned as an `l:Variable` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/Variable"
               - type: object
                 xml:
-                  name: variable
+                  name: g:ResourcePackage
+                  wrapped: true
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            $ref: "#/components/schemas/Variable"
-        application/json:
           schema:
             $ref: "#/components/schemas/Variable"
     "200-concepts":
       description: OK - List of concepts
       content:
         application/vnd.ddi.structure+xml;version=3.3:
+          description: |
+            DDI 3.3 compliant XML response.
+            The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
+            Concepts are returned as `c:Concept` elements within the ResourcePackage.
           schema:
             type: array
             xml:
-              name: concepts
+              name: g:ResourcePackage
+              wrapped: true
             items:
               $ref: "#/components/schemas/Concept"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/Concept"
-        application/json:
           schema:
             type: array
             items:
@@ -953,9 +955,6 @@ components:
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/Concept"
-        application/json:
-          schema:
-            $ref: "#/components/schemas/Concept"
     "200-concept-schemes":
       description: OK - List of concept schemes
       content:
@@ -967,11 +966,6 @@ components:
             items:
               $ref: "#/components/schemas/ConceptScheme"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/ConceptScheme"
-        application/json:
           schema:
             type: array
             items:
@@ -989,9 +983,6 @@ components:
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/ConceptScheme"
-        application/json:
-          schema:
-            $ref: "#/components/schemas/ConceptScheme"
     "200-variable-schemes":
       description: OK - List of variable schemes
       content:
@@ -1003,11 +994,6 @@ components:
             items:
               $ref: "#/components/schemas/VariableScheme"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/VariableScheme"
-        application/json:
           schema:
             type: array
             items:
@@ -1025,9 +1011,6 @@ components:
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/VariableScheme"
-        application/json:
-          schema:
-            $ref: "#/components/schemas/VariableScheme"
     "200-code-list-schemes":
       description: OK - List of code list schemes
       content:
@@ -1039,11 +1022,6 @@ components:
             items:
               $ref: "#/components/schemas/CodeListScheme"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/CodeListScheme"
-        application/json:
           schema:
             type: array
             items:
@@ -1061,9 +1039,6 @@ components:
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/CodeListScheme"
-        application/json:
-          schema:
-            $ref: "#/components/schemas/CodeListScheme"
     "200-code-lists":
       description: OK - List of code lists
       content:
@@ -1075,11 +1050,6 @@ components:
             items:
               $ref: "#/components/schemas/CodeList"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/CodeList"
-        application/json:
           schema:
             type: array
             items:
@@ -1097,9 +1067,6 @@ components:
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/CodeList"
-        application/json:
-          schema:
-            $ref: "#/components/schemas/CodeList"
     "200-category-schemes":
       description: OK - List of category schemes
       content:
@@ -1111,11 +1078,6 @@ components:
             items:
               $ref: "#/components/schemas/CategoryScheme"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/CategoryScheme"
-        application/json:
           schema:
             type: array
             items:
@@ -1133,9 +1095,6 @@ components:
         application/vnd.ddi.structure+json;version=3.3:
           schema:
             $ref: "#/components/schemas/CategoryScheme"
-        application/json:
-          schema:
-            $ref: "#/components/schemas/CategoryScheme"
     "200-label-search":
       description: OK - Label search results
       content:
@@ -1147,11 +1106,6 @@ components:
             items:
               $ref: "#/components/schemas/LabelSearchResult"
         application/vnd.ddi.structure+json;version=3.3:
-          schema:
-            type: array
-            items:
-              $ref: "#/components/schemas/LabelSearchResult"
-        application/json:
           schema:
             type: array
             items:
