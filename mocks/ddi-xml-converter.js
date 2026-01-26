@@ -35,26 +35,20 @@ function convertToDDIXML(jsonData, rootElementName) {
   root.att('xmlns', 'ddi:instance:3_3');
 
   if (Array.isArray(jsonData)) {
-    // Array of resources
+    // Array of resources - add each directly to root
     jsonData.forEach(item => {
-      const element = convertObjectToDDI(root, item);
-      if (element) {
-        root.importDocument(element);
-      }
+      convertObjectToDDI(root, item);
     });
   } else {
-    // Single resource
-    const element = convertObjectToDDI(root, jsonData);
-    if (element) {
-      root.importDocument(element);
-    }
+    // Single resource - add directly to root
+    convertObjectToDDI(root, jsonData);
   }
 
   return root.end({ pretty: true, indent: '   ', newline: '\n' });
 }
 
 /**
- * Convert a single JSON object to DDI XML element
+ * Convert a single JSON object to DDI XML element and add it to parent
  */
 function convertObjectToDDI(parent, obj) {
   if (!obj || typeof obj !== 'object') {
@@ -62,7 +56,7 @@ function convertObjectToDDI(parent, obj) {
   }
 
   const elementName = getDDIElementName(obj);
-  const element = builder.create(elementName);
+  const element = parent.ele(elementName);
 
   // Handle isUniversallyUnique attribute
   if (obj.isUniversallyUnique === true) {
@@ -132,10 +126,7 @@ function convertObjectToDDI(parent, obj) {
 
   // Handle concept (when resolved)
   if (obj.concept) {
-    const conceptEle = convertObjectToDDI(element, obj.concept);
-    if (conceptEle) {
-      element.importDocument(conceptEle);
-    }
+    convertObjectToDDI(element, obj.concept);
   }
 
   // Handle subclassOfReference
@@ -147,10 +138,7 @@ function convertObjectToDDI(parent, obj) {
 
   // Handle subclassOf (when resolved)
   if (obj.subclassOf) {
-    const subclassEle = convertObjectToDDI(element, obj.subclassOf);
-    if (subclassEle) {
-      element.importDocument(subclassEle);
-    }
+    convertObjectToDDI(element, obj.subclassOf);
   }
 
   // Handle representation (for Variables)
@@ -168,10 +156,7 @@ function convertObjectToDDI(parent, obj) {
 
   // Handle sourceVariable (when resolved)
   if (obj.sourceVariable) {
-    const sourceVarEle = convertObjectToDDI(element, obj.sourceVariable);
-    if (sourceVarEle) {
-      element.importDocument(sourceVarEle);
-    }
+    convertObjectToDDI(element, obj.sourceVariable);
   }
 
   // Handle concepts array (for ConceptScheme)
@@ -186,10 +171,7 @@ function convertObjectToDDI(parent, obj) {
         conceptRef.ele('r:URN', concept.urn || `urn:ddi:${concept.agencyID}:${concept.id}:${concept.version}`);
       } else {
         // It's a full Concept object
-        const conceptEle = convertObjectToDDI(element, concept);
-        if (conceptEle) {
-          element.importDocument(conceptEle);
-        }
+        convertObjectToDDI(element, concept);
       }
     });
   }
@@ -206,10 +188,7 @@ function convertObjectToDDI(parent, obj) {
         varRef.ele('r:URN', variable.urn || `urn:ddi:${variable.agencyID}:${variable.id}:${variable.version}`);
       } else {
         // It's a full Variable object
-        const varEle = convertObjectToDDI(element, variable);
-        if (varEle) {
-          element.importDocument(varEle);
-        }
+        convertObjectToDDI(element, variable);
       }
     });
   }
@@ -226,10 +205,7 @@ function convertObjectToDDI(parent, obj) {
         codeListRef.ele('r:URN', codeList.urn || `urn:ddi:${codeList.agencyID}:${codeList.id}:${codeList.version}`);
       } else {
         // It's a full CodeList object
-        const codeListEle = convertObjectToDDI(element, codeList);
-        if (codeListEle) {
-          element.importDocument(codeListEle);
-        }
+        convertObjectToDDI(element, codeList);
       }
     });
   }
@@ -246,10 +222,7 @@ function convertObjectToDDI(parent, obj) {
         catRef.ele('r:URN', category.urn || `urn:ddi:${category.agencyID}:${category.id}:${category.version}`);
       } else {
         // It's a full Category object
-        const catEle = convertObjectToDDI(element, category);
-        if (catEle) {
-          element.importDocument(catEle);
-        }
+        convertObjectToDDI(element, category);
       }
     });
   }
@@ -257,10 +230,7 @@ function convertObjectToDDI(parent, obj) {
   // Handle codes array (for CodeList)
   if (obj.codes && Array.isArray(obj.codes)) {
     obj.codes.forEach(code => {
-      const codeEle = convertCodeToDDI(element, code);
-      if (codeEle) {
-        element.importDocument(codeEle);
-      }
+      convertCodeToDDI(element, code);
     });
   }
 
@@ -273,10 +243,7 @@ function convertObjectToDDI(parent, obj) {
 
   // Handle categoryScheme (when resolved)
   if (obj.categoryScheme) {
-    const schemeEle = convertObjectToDDI(element, obj.categoryScheme);
-    if (schemeEle) {
-      element.importDocument(schemeEle);
-    }
+    convertObjectToDDI(element, obj.categoryScheme);
   }
 
   // Handle categoryReference (for Code)
@@ -288,10 +255,7 @@ function convertObjectToDDI(parent, obj) {
 
   // Handle category (when resolved)
   if (obj.category) {
-    const catEle = convertObjectToDDI(element, obj.category);
-    if (catEle) {
-      element.importDocument(catEle);
-    }
+    convertObjectToDDI(element, obj.category);
   }
 
   // Handle value (for Code)
@@ -320,10 +284,7 @@ function convertRepresentation(parent, representation) {
     }
     
     if (representation.codeRepresentation.codeList) {
-      const codeListEle = convertObjectToDDI(codeRep, representation.codeRepresentation.codeList);
-      if (codeListEle) {
-        codeRep.importDocument(codeListEle);
-      }
+      convertObjectToDDI(codeRep, representation.codeRepresentation.codeList);
     }
   }
 
