@@ -9,6 +9,14 @@ info:
     
     DDI is an international standard for describing statistical and social science data.
     
+    ## Response Formats
+    
+    The API supports DDI-specific response formats:
+    - `application/vnd.ddi.structure+json;version=3.3` - DDI JSON format (default if no Accept header is provided)
+    - `application/vnd.ddi.structure+xml;version=3.3` - DDI XML format
+    
+    If no `Accept` header is provided, the API returns DDI JSON format by default.
+    
 servers:
   - description: Mock API Server
     url: http://ddi-api.making-sense.info/ddi/v1
@@ -54,6 +62,8 @@ paths:
         Variables describe the structure of data elements within a dataset. They include information such as name, label, description, and references to associated concepts.
         
         Variables can be filtered by various criteria including study, dataset, or concept references.
+        
+        **Response Format**: If no `Accept` header is provided, returns DDI JSON format (`application/vnd.ddi.structure+json;version=3.3`) by default.
       parameters:
         - $ref: "#/components/parameters/urn"
         - $ref: "#/components/parameters/agencyID"
@@ -84,6 +94,8 @@ paths:
         - An ID (if agencyID and version are provided as query parameters)
         
         Returns detailed information about the variable including its structure, concepts, and related metadata.
+        
+        **Response Format**: If no `Accept` header is provided, returns DDI JSON format (`application/vnd.ddi.structure+json;version=3.3`) by default.
       parameters:
         - $ref: "#/components/parameters/variableID-path"
         - $ref: "#/components/parameters/agencyID"
@@ -885,7 +897,10 @@ components:
 
   responses:
     "200-variables":
-      description: OK - List of variables
+      description: |
+        OK - List of variables.
+        
+        **Default format**: If no `Accept` header is provided, returns DDI JSON format (`application/vnd.ddi.structure+json;version=3.3`).
       content:
         application/vnd.ddi.structure+xml;version=3.3:
           description: |
@@ -933,6 +948,7 @@ components:
                </l:Variable>
             </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
+          description: DDI JSON format (default if no Accept header is provided)
           schema:
             type: array
             items:
@@ -986,6 +1002,7 @@ components:
                </l:Variable>
             </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
+          description: DDI JSON format (default if no Accept header is provided)
           schema:
             $ref: "#/components/schemas/Variable"
     "200-concepts":

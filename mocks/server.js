@@ -366,6 +366,12 @@ function resolveReferences(obj, level, startDepth = 0) {
 // Helper to determine response format based on Accept header
 function getResponseFormat(req) {
   const accept = req.headers.accept || '';
+  
+  // If no Accept header or Accept is */*, default to DDI JSON
+  if (!accept || accept === '*/*' || accept.trim() === '') {
+    return 'json';
+  }
+  
   // Only accept DDI-specific formats
   if (accept.includes('application/vnd.ddi.structure+xml;version=3.3')) {
     return 'xml';
@@ -373,10 +379,7 @@ function getResponseFormat(req) {
   if (accept.includes('application/vnd.ddi.structure+json;version=3.3')) {
     return 'json';
   }
-  // Default to JSON DDI format if no Accept header
-  if (!accept || accept === '*/*') {
-    return 'json';
-  }
+  
   // Unsupported format
   return null;
 }

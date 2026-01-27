@@ -32,7 +32,7 @@ The API supports DDI-specific response formats only. Use the `Accept` header to 
 
 **DDI JSON Format (default):**
 ```bash
-# DDI JSON format (default if no Accept header)
+# DDI JSON format (default - no Accept header needed)
 curl https://api.example.com/ddi/v1/variables
 
 # Explicit DDI JSON request
@@ -41,12 +41,12 @@ curl -H "Accept: application/vnd.ddi.structure+json;version=3.3" https://api.exa
 
 **DDI XML Format:**
 ```bash
-# DDI XML format
+# DDI XML format (requires Accept header)
 curl -H "Accept: application/vnd.ddi.structure+xml;version=3.3" https://api.example.com/ddi/v1/variables
 ```
 
 **Supported Content Types:**
-- `application/vnd.ddi.structure+json;version=3.3` - DDI JSON format (default)
+- `application/vnd.ddi.structure+json;version=3.3` - DDI JSON format (default if no Accept header)
 - `application/vnd.ddi.structure+xml;version=3.3` - DDI XML format
 
 **Note:** 

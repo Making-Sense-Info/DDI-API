@@ -21,7 +21,9 @@ The mock API supports DDI-specific formats only:
 - **DDI JSON** (default): `application/vnd.ddi.structure+json;version=3.3`
 - **DDI XML**: `application/vnd.ddi.structure+xml;version=3.3`
 
-The format is determined by the `Accept` header in your request. If no `Accept` header is provided, DDI JSON format is returned by default.
+The format is determined by the `Accept` header in your request. 
+
+**Default Behavior**: If no `Accept` header is provided (or if `Accept: */*` is sent), the API returns DDI JSON format by default. You don't need to specify the `Accept` header to get JSON responses.
 
 **Note:** Generic formats (`application/json`, `application/xml`, `text/xml`) are not supported and will return a `406 Not Acceptable` error.
 
