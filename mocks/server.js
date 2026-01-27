@@ -367,12 +367,12 @@ function resolveReferences(obj, level, startDepth = 0) {
 function getResponseFormat(req) {
   const accept = req.headers.accept || '';
   
-  // If no Accept header or Accept is */*, default to DDI JSON
-  if (!accept || accept === '*/*' || accept.trim() === '') {
+  // If no Accept header or empty, default to DDI JSON
+  if (!accept || accept.trim() === '') {
     return 'json';
   }
   
-  // Only accept DDI-specific formats
+  // Check for DDI-specific formats first (explicit requests)
   if (accept.includes('application/vnd.ddi.structure+xml;version=3.3')) {
     return 'xml';
   }
@@ -380,8 +380,21 @@ function getResponseFormat(req) {
     return 'json';
   }
   
-  // Unsupported format
-  return null;
+  // If Accept contains */* (wildcard), default to DDI JSON
+  // This handles browser requests like "text/html,application/xhtml+xml,*/*;q=0.8"
+  if (accept.includes('*/*')) {
+    return 'json';
+  }
+  
+  // If Accept is exactly */*, default to DDI JSON
+  if (accept.trim() === '*/*') {
+    return 'json';
+  }
+  
+  // For any other Accept header (browser defaults, generic formats, etc.),
+  // default to DDI JSON instead of returning 406
+  // This makes the API more user-friendly: JSON by default unless XML is explicitly requested
+  return 'json';
 }
 
 // Helper to send response in appropriate format
