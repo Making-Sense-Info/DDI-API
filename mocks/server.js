@@ -813,8 +813,8 @@ app.get('/', (req, res) => {
       }
     },
     documentation: {
-      swaggerUI: 'https://nicolaval.github.io/DDI-API/',
-      endpoints: 'https://github.com/NicoLaval/DDI-API/blob/main/docs/MOCK_API_ENDPOINTS.md'
+      swaggerUI: 'https://making-sense-info.github.io/DDI-API/',
+      endpoints: 'https://github.com/Making-Sense-Info/DDI-API/blob/main/docs/MOCK_API_ENDPOINTS.md'
     },
     queryParameters: {
       references: {

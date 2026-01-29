@@ -16,7 +16,7 @@ The API specification is available in the `ddi-rest.yaml` file in OpenAPI 3.1.1 
 
 ### Online Documentation
 
-- **Swagger UI**: [View on GitHub Pages](https://nicolaval.github.io/DDI-API/)
+- **Swagger UI**: [View on GitHub Pages](https://making-sense-info.github.io/DDI-API/)
 
 ### Local Development
 
