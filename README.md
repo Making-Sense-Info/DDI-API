@@ -1,10 +1,10 @@
-# DDI RESTful API
+# DDI API
 
 REST API for DDI (Data Documentation Initiative), an international standard for describing statistical and social science data.
 
 ### Get involved
 
-- **[Roadmap](https://github.com/orgs/Making-Sense-Info/projects/6)** — Plan and track the API roadmap on the DDI API GitHub Project.
+- **[Follow the roadmap](https://github.com/orgs/Making-Sense-Info/projects/6)**
 - **[Issues](https://github.com/Making-Sense-Info/DDI-API/issues)** — Report bugs or give feedback (feature requests, API improvements).
 - **[Discussions](https://github.com/Making-Sense-Info/DDI-API/discussions)** — Share use cases, ask questions, and discuss with the DDI community.
 
