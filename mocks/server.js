@@ -193,7 +193,7 @@ function getResolvedPropertyName(refPropertyName) {
 }
 
 // Helper to resolve a single reference
-function resolveSingleReference(ref, level, isRecursive, currentDepth = 0) {
+function resolveSingleReference(ref, level, isRecursive, currentDepth = 0, visited = new Set()) {
   if (!ref || typeof ref !== 'object') return ref;
   
   const refId = extractId(ref);
@@ -211,7 +211,8 @@ function resolveSingleReference(ref, level, isRecursive, currentDepth = 0) {
   if (resolvedObj) {
     // If recursive, resolve all references in the resolved object
     // Pass currentDepth + 1 to continue recursive resolution
-    return isRecursive ? resolveReferences(resolvedObj, level, currentDepth + 1) : resolvedObj;
+    // Also pass the visited set to prevent infinite loops
+    return isRecursive ? resolveReferences(resolvedObj, level, currentDepth + 1, visited) : resolvedObj;
   }
   
   return ref;
@@ -220,8 +221,29 @@ function resolveSingleReference(ref, level, isRecursive, currentDepth = 0) {
 // Helper to resolve references in an object (truly recursive and generic)
 // level: 'none' (default), 'children' (first level only), 'all' (recursive)
 // startDepth: starting depth for recursive processing (used internally)
-function resolveReferences(obj, level, startDepth = 0) {
+// visited: Set of already visited URNs to prevent circular reference infinite loops
+function resolveReferences(obj, level, startDepth = 0, visited = new Set()) {
   if (!level || level === 'none' || !obj || typeof obj !== 'object') return obj;
+  
+  // Prevent infinite recursion by tracking visited URNs
+  const objUrn = obj.urn;
+  if (objUrn && visited.has(objUrn)) {
+    // Already visited this object - return reference instead of full object
+    return {
+      urn: obj.urn,
+      id: obj.id,
+      agencyID: obj.agencyID,
+      version: obj.version,
+      typeOfObject: obj.typeOfObject,
+      _circularRef: true
+    };
+  }
+  
+  // Add current URN to visited set (only for recursive 'all' level)
+  if (level === 'all' && objUrn) {
+    visited = new Set(visited);
+    visited.add(objUrn);
+  }
   
   const resolved = JSON.parse(JSON.stringify(obj)); // Deep clone
   const isRecursive = level === 'all';
@@ -236,12 +258,12 @@ function resolveReferences(obj, level, startDepth = 0) {
   }
   
   // Recursively process object properties
-  function processObject(objToProcess, depth = 0) {
+  function processObject(objToProcess, depth = 0, visitedSet = visited) {
     if (!objToProcess || typeof objToProcess !== 'object') return objToProcess;
     
     // Special handling for arrays
     if (Array.isArray(objToProcess)) {
-      return objToProcess.map(item => processObject(item, depth));
+      return objToProcess.map(item => processObject(item, depth, visitedSet));
     }
     
     const processed = {};
@@ -258,7 +280,7 @@ function resolveReferences(obj, level, startDepth = 0) {
         // For 'children' level: resolve only at depth 0
         // For 'all' level: resolve at all depths (truly recursive)
         if (depth === 0 || isRecursive) {
-          const resolved = resolveSingleReference(value, level, isRecursive, depth);
+          const resolved = resolveSingleReference(value, level, isRecursive, depth, visited);
           // Replace xxxReference with xxx when resolved
           const resolvedKey = getResolvedPropertyName(key);
           processed[resolvedKey] = resolved;
@@ -271,7 +293,7 @@ function resolveReferences(obj, level, startDepth = 0) {
       else if (key === 'representation' && value?.codeRepresentation?.codeListReference) {
         const codeListRef = value.codeRepresentation.codeListReference;
         if (depth === 0 || isRecursive) {
-          const resolved = resolveSingleReference(codeListRef, level, isRecursive, depth);
+          const resolved = resolveSingleReference(codeListRef, level, isRecursive, depth, visited);
           // Create a new codeRepresentation object without codeListReference
           const { codeListReference, ...codeRepresentationWithoutRef } = value.codeRepresentation;
           processed[key] = {
@@ -303,7 +325,7 @@ function resolveReferences(obj, level, startDepth = 0) {
                 const categories = loadMock('categories.json');
                 const category = findById(categories, categoryId);
                 if (category) {
-                  const resolvedCategory = isRecursive ? resolveReferences(category, level, depth + 1) : category;
+                  const resolvedCategory = isRecursive ? resolveReferences(category, level, depth + 1, visited) : category;
                   // Exclude categoryReference when resolving to category
                   const { categoryReference, ...codeWithoutRef } = code;
                   return {
@@ -313,7 +335,7 @@ function resolveReferences(obj, level, startDepth = 0) {
                 }
               }
             }
-            return isRecursive ? processObject(code, depth + 1) : code;
+            return isRecursive ? processObject(code, depth + 1, visited) : code;
           });
         }
         // Special handling for scheme children (concepts, variables, codeLists, categories)
@@ -333,7 +355,7 @@ function resolveReferences(obj, level, startDepth = 0) {
                     // For 'children' level: resolve object but not its internal references
                     // For 'all' level: resolve recursively with all references
                     if (isRecursive) {
-                      return resolveReferences(child, level, depth + 1);
+                      return resolveReferences(child, level, depth + 1, visited);
                     } else {
                       // For 'children' level, return the full object but don't resolve its internal references
                       return child;
@@ -342,18 +364,18 @@ function resolveReferences(obj, level, startDepth = 0) {
                 }
               }
               // If not an identifier or not found, process as normal
-              return processObject(identifier, depth + 1);
+              return processObject(identifier, depth + 1, visited);
             });
           } else {
-            processed[key] = value.map(item => processObject(item, depth + 1));
+            processed[key] = value.map(item => processObject(item, depth + 1, visited));
           }
         } else {
-          processed[key] = value.map(item => processObject(item, depth + 1));
+          processed[key] = value.map(item => processObject(item, depth + 1, visited));
         }
       }
       // Recursively process nested objects
       else if (value && typeof value === 'object') {
-        processed[key] = processObject(value, depth + 1);
+        processed[key] = processObject(value, depth + 1, visited);
       }
       // Keep primitive values as-is
       else {
