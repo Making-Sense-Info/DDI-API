@@ -1,0 +1,107 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:phys-001:1.0.0",
+    "id": "phys-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Health Survey Data 2023"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Main data file from the 2023 National Health Survey"
+      }
+    ],
+    "dataFileReference": {
+      "uri": "https://example.com/data/health-survey-2023.csv",
+      "filename": "health-survey-2023.csv",
+      "size": 15728640,
+      "format": "CSV",
+      "charset": "UTF-8"
+    },
+    "dataSetReference": {
+      "urn": "urn:ddi:example.agency:dataset-001:1.0.0",
+      "id": "dataset-001",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "DataSet"
+    },
+    "caseQuantity": 15000,
+    "variableQuantity": 250,
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:phys-002:1.0.0",
+    "id": "phys-002",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Labor Force Survey Q4 2023"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Quarterly labor force data file"
+      }
+    ],
+    "dataFileReference": {
+      "uri": "https://example.com/data/lfs-q4-2023.sav",
+      "filename": "lfs-q4-2023.sav",
+      "size": 8388608,
+      "format": "SPSS",
+      "charset": "UTF-8"
+    },
+    "dataSetReference": {
+      "urn": "urn:ddi:example.agency:dataset-002:1.0.0",
+      "id": "dataset-002",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "DataSet"
+    },
+    "caseQuantity": 8500,
+    "variableQuantity": 180,
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:phys-003:1.0.0",
+    "id": "phys-003",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "label": [
+      {
+        "lang": "en",
+        "value": "Education Survey 2022 Stata Format"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Education attainment data in Stata format"
+      }
+    ],
+    "dataFileReference": {
+      "uri": "https://example.com/data/education-2022.dta",
+      "filename": "education-2022.dta",
+      "size": 4194304,
+      "format": "Stata",
+      "charset": "UTF-8"
+    },
+    "dataSetReference": {
+      "urn": "urn:ddi:example.agency:dataset-003:1.0.0",
+      "id": "dataset-003",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "DataSet"
+    },
+    "caseQuantity": 12000,
+    "variableQuantity": 95,
+    "isUniversallyUnique": true
+  }
+]

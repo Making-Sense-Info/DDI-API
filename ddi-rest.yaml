@@ -5,7 +5,7 @@ info:
   description: |
     The RESTful API for DDI (Data Documentation Initiative).
     
-    This API provides access to DDI metadata resources including variables, concepts, concept schemes, and variable schemes.
+    This API provides access to DDI metadata resources including study units, physical instances, datasets, variables, concepts, concept schemes, and variable schemes.
     
     DDI is an international standard for describing statistical and social science data.
     
@@ -425,6 +425,159 @@ paths:
         "200":
           $ref: "#/components/responses/200-label-search"
 
+  /study-units:
+    get:
+      summary: "Get study units"
+      tags:
+        - Study Units
+      description: |
+        Retrieve study units from DDI metadata.
+        
+        StudyUnit is the top-level container in DDI that represents a complete survey or study.
+        It contains all metadata about the data collection including datasets, variables, and physical instances.
+        
+        Study units can be filtered by various criteria including agency, resource, or version.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/studyUnitID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-study-units"
+
+  /study-units/{studyUnitID}:
+    get:
+      summary: "Get study unit by ID"
+      tags:
+        - Study Units
+      description: |
+        Retrieve a specific study unit identified by its ID.
+        
+        The studyUnitID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the study unit including its datasets, variables, and related metadata.
+      parameters:
+        - $ref: "#/components/parameters/studyUnitID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-study-unit"
+
+  /physical-instances:
+    get:
+      summary: "Get physical instances"
+      tags:
+        - Physical Instances
+      description: |
+        Retrieve physical instances from DDI metadata.
+        
+        PhysicalInstance describes the physical representation of data files,
+        including file formats, storage locations, and access information.
+        
+        Physical instances can be filtered by various criteria including study or dataset references.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/physicalInstanceID"
+        - $ref: "#/components/parameters/datasetID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-physical-instances"
+
+  /physical-instances/{physicalInstanceID}:
+    get:
+      summary: "Get physical instance by ID"
+      tags:
+        - Physical Instances
+      description: |
+        Retrieve a specific physical instance identified by its ID.
+        
+        The physicalInstanceID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the physical instance including file format and location.
+      parameters:
+        - $ref: "#/components/parameters/physicalInstanceID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-physical-instance"
+
+  /datasets:
+    get:
+      summary: "Get datasets"
+      tags:
+        - Datasets
+      description: |
+        Retrieve datasets from DDI metadata.
+        
+        Dataset represents a logical collection of data records.
+        It contains references to variables and describes the data structure.
+        
+        Datasets can be filtered by various criteria including study or physical instance references.
+      parameters:
+        - $ref: "#/components/parameters/urn"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/datasetID"
+        - $ref: "#/components/parameters/studyID"
+        - $ref: "#/components/parameters/physicalInstanceID"
+        - $ref: "#/components/parameters/references"
+        - $ref: "#/components/parameters/offset"
+        - $ref: "#/components/parameters/limit"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-datasets"
+
+  /datasets/{datasetID}:
+    get:
+      summary: "Get dataset by ID"
+      tags:
+        - Datasets
+      description: |
+        Retrieve a specific dataset identified by its ID.
+        
+        The datasetID can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}")
+        - An ID (if agencyID and version are provided as query parameters)
+        
+        Returns detailed information about the dataset including its variables and structure.
+      parameters:
+        - $ref: "#/components/parameters/datasetID-path"
+        - $ref: "#/components/parameters/agencyID"
+        - $ref: "#/components/parameters/resourceID"
+        - $ref: "#/components/parameters/version"
+        - $ref: "#/components/parameters/references"
+      responses:
+        <<: *common_responses
+        "200":
+          $ref: "#/components/responses/200-dataset"
+
 components:
   parameters:
     agencyID:
@@ -553,26 +706,6 @@ components:
           examples:
             - "urn:ddi:example.agency:study-001:1.0.0"
             - "study-001"
-      style: form
-      explode: false
-    datasetID:
-      in: query
-      name: datasetID
-      description: |
-        Filter by dataset ID. Multiple values are supported.
-        
-        Each value can be either:
-        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:dataset-001:1.0.0"
-        - An ID (if agencyID and version are provided as query parameters), e.g., "dataset-001"
-      required: false
-      schema:
-        type: array
-        items:
-          type: string
-          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
-          examples:
-            - "urn:ddi:example.agency:dataset-001:1.0.0"
-            - "dataset-001"
       style: form
       explode: false
     conceptReference:
@@ -894,6 +1027,114 @@ components:
           pattern: "^urn:ddi:.+:.+:.+$"
       style: form
       explode: false
+    studyUnitID:
+      in: query
+      name: studyUnitID
+      description: |
+        Filter by study unit ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:study-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "study-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:study-001:1.0.0"
+            - "study-001"
+      style: form
+      explode: false
+    studyUnitID-path:
+      in: path
+      name: studyUnitID
+      description: |
+        The identifier of the study unit to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:study-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "study-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:study-001:1.0.0"
+          - "study-001"
+    physicalInstanceID:
+      in: query
+      name: physicalInstanceID
+      description: |
+        Filter by physical instance ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:phys-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "phys-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:phys-001:1.0.0"
+            - "phys-001"
+      style: form
+      explode: false
+    physicalInstanceID-path:
+      in: path
+      name: physicalInstanceID
+      description: |
+        The identifier of the physical instance to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:phys-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "phys-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:phys-001:1.0.0"
+          - "phys-001"
+    datasetID:
+      in: query
+      name: datasetID
+      description: |
+        Filter by dataset ID. Multiple values are supported.
+        
+        Each value can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:dataset-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "dataset-001"
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
+          pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+          examples:
+            - "urn:ddi:example.agency:dataset-001:1.0.0"
+            - "dataset-001"
+      style: form
+      explode: false
+    datasetID-path:
+      in: path
+      name: datasetID
+      description: |
+        The identifier of the dataset to retrieve.
+        
+        Can be either:
+        - A URN (format: "urn:ddi:{agency}:{id}:{version}"), e.g., "urn:ddi:example.agency:dataset-001:1.0.0"
+        - An ID (if agencyID and version are provided as query parameters), e.g., "dataset-001"
+      required: true
+      schema:
+        type: string
+        pattern: "^urn:ddi:.+:.+:.+$|^[^:]+$"
+        examples:
+          - "urn:ddi:example.agency:dataset-001:1.0.0"
+          - "dataset-001"
 
   responses:
     "200-variables":
@@ -1294,6 +1535,48 @@ components:
             type: array
             items:
               $ref: "#/components/schemas/LabelSearchResult"
+    "200-study-units":
+      description: OK - List of study units
+      content:
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/StudyUnit"
+    "200-study-unit":
+      description: OK - Single study unit
+      content:
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/StudyUnit"
+    "200-physical-instances":
+      description: OK - List of physical instances
+      content:
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/PhysicalInstance"
+    "200-physical-instance":
+      description: OK - Single physical instance
+      content:
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/PhysicalInstance"
+    "200-datasets":
+      description: OK - List of datasets
+      content:
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            type: array
+            items:
+              $ref: "#/components/schemas/DataSet"
+    "200-dataset":
+      description: OK - Single dataset
+      content:
+        application/vnd.ddi.structure+json;version=3.3:
+          schema:
+            $ref: "#/components/schemas/DataSet"
     "204":
       description: No content
     "304":
@@ -2556,4 +2839,326 @@ components:
         format:
           type: string
           description: Format specification (e.g., date format, number format) (for backward compatibility)
+
+    StudyUnit:
+      type: object
+      description: |
+        A StudyUnit is the top-level container in DDI that represents a complete survey or study.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      xml:
+        name: s:StudyUnit
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the study unit.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:example.agency:study-001:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the study unit.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this study unit.
+            Example: "example.agency"
+        version:
+          type: string
+          description: |
+            The version of the study unit.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Study unit names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        abstract:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Abstract of the study
+        versionDate:
+          type: string
+          description: The date this version was created
+        dataSetReference:
+          $ref: "#/components/schemas/Reference"
+          description: |
+            Reference to datasets contained in this study.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `dataSets` containing the full DataSet objects.
+        dataSets:
+          type: array
+          items:
+            $ref: "#/components/schemas/DataSet"
+          description: |
+            The full DataSet objects (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
+        physicalInstanceReference:
+          $ref: "#/components/schemas/Reference"
+          description: |
+            Reference to physical instances (data files) in this study.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `physicalInstances` containing the full PhysicalInstance objects.
+        physicalInstances:
+          type: array
+          items:
+            $ref: "#/components/schemas/PhysicalInstance"
+          description: |
+            The full PhysicalInstance objects (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none'.
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the study unit has a universally unique identifier
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:study-001:1.0.0"
+        id: "study-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        name:
+          - lang: "en"
+            value: "Health Survey 2023"
+          - lang: "fr"
+            value: "Enquête Santé 2023"
+        label:
+          - lang: "en"
+            value: "National Health Survey 2023"
+          - lang: "fr"
+            value: "Enquête Nationale sur la Santé 2023"
+        description:
+          - lang: "en"
+            value: "A nationwide survey on health status and behaviors"
+          - lang: "fr"
+            value: "Une enquête nationale sur l'état de santé et les comportements"
+        abstract:
+          - lang: "en"
+            value: "This study collects data on health conditions, healthcare utilization, and health behaviors from a representative sample of the population."
+        versionDate: "2023-06-15"
+        dataSetReference:
+          - urn: "urn:ddi:example.agency:dataset-001:1.0.0"
+            id: "dataset-001"
+            agencyID: "example.agency"
+            version: "1.0.0"
+            typeOfObject: "DataSet"
+        isUniversallyUnique: true
+
+    PhysicalInstance:
+      type: object
+      description: |
+        A PhysicalInstance describes the physical representation of data files.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      xml:
+        name: pi:PhysicalInstance
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the physical instance.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:example.agency:phys-001:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the physical instance.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this physical instance.
+            Example: "example.agency"
+        version:
+          type: string
+          description: |
+            The version of the physical instance.
+            Example: "1.0.0"
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        dataFileReference:
+          type: object
+          description: Reference to the data file
+          properties:
+            uri:
+              type: string
+              description: URI of the data file
+            filename:
+              type: string
+              description: Name of the data file
+            size:
+              type: integer
+              description: Size of the file in bytes
+            format:
+              type: string
+              description: File format (e.g., CSV, SPSS, Stata)
+            charset:
+              type: string
+              description: Character encoding (e.g., UTF-8, ISO-8859-1)
+        dataSetReference:
+          $ref: "#/components/schemas/Reference"
+          description: Reference to the dataset this physical instance belongs to
+        caseQuantity:
+          type: integer
+          description: Number of cases/records in the data file
+        variableQuantity:
+          type: integer
+          description: Number of variables in the data file
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the physical instance has a universally unique identifier
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:phys-001:1.0.0"
+        id: "phys-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        label:
+          - lang: "en"
+            value: "Health Survey Data 2023"
+        description:
+          - lang: "en"
+            value: "Main data file from the 2023 Health Survey"
+        dataFileReference:
+          uri: "https://example.com/data/health-survey-2023.csv"
+          filename: "health-survey-2023.csv"
+          size: 15728640
+          format: "CSV"
+          charset: "UTF-8"
+        dataSetReference:
+          urn: "urn:ddi:example.agency:dataset-001:1.0.0"
+          id: "dataset-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "DataSet"
+        caseQuantity: 15000
+        variableQuantity: 250
+        isUniversallyUnique: true
+
+    DataSet:
+      type: object
+      description: |
+        A DataSet represents a logical collection of data records.
+        
+        In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      xml:
+        name: i:DataSet
+      properties:
+        urn:
+          type: string
+          description: |
+            The URN (Uniform Resource Name) of the dataset.
+            Format: "urn:ddi:{agency}:{id}:{version}"
+            Example: "urn:ddi:example.agency:dataset-001:1.0.0"
+        id:
+          type: string
+          description: |
+            The unique identifier of the dataset.
+            When used with agencyID and version, forms an alternative identification to URN.
+        agencyID:
+          type: string
+          description: |
+            The agency maintaining this dataset.
+            Example: "example.agency"
+        version:
+          type: string
+          description: |
+            The version of the dataset.
+            Example: "1.0.0"
+        name:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Dataset names in different languages
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+          description: Labels in different languages
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+          description: Descriptions in different languages
+        variableSchemeReference:
+          $ref: "#/components/schemas/Reference"
+          description: |
+            Reference to the variable scheme containing variables for this dataset.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `variableScheme` containing the full VariableScheme object.
+        variableScheme:
+          $ref: "#/components/schemas/VariableScheme"
+          description: |
+            The full VariableScheme object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none'.
+        physicalInstanceReference:
+          $ref: "#/components/schemas/Reference"
+          description: |
+            Reference to the physical instance (data file) for this dataset.
+            
+            When `references` parameter is `children` or `all`, this property is replaced by `physicalInstance` containing the full PhysicalInstance object.
+        physicalInstance:
+          $ref: "#/components/schemas/PhysicalInstance"
+          description: |
+            The full PhysicalInstance object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none'.
+        isUniversallyUnique:
+          type: boolean
+          description: Whether the dataset has a universally unique identifier
+      required:
+        - id
+      example:
+        urn: "urn:ddi:example.agency:dataset-001:1.0.0"
+        id: "dataset-001"
+        agencyID: "example.agency"
+        version: "1.0.0"
+        name:
+          - lang: "en"
+            value: "Health Survey Dataset"
+          - lang: "fr"
+            value: "Ensemble de données d'enquête sur la santé"
+        label:
+          - lang: "en"
+            value: "National Health Survey Dataset 2023"
+        description:
+          - lang: "en"
+            value: "Dataset containing responses from the 2023 National Health Survey"
+        variableSchemeReference:
+          urn: "urn:ddi:example.agency:variablescheme-001:1.0.0"
+          id: "variablescheme-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "VariableScheme"
+        physicalInstanceReference:
+          urn: "urn:ddi:example.agency:phys-001:1.0.0"
+          id: "phys-001"
+          agencyID: "example.agency"
+          version: "1.0.0"
+          typeOfObject: "PhysicalInstance"
+        isUniversallyUnique: true
 

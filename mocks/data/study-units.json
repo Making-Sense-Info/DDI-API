@@ -1,0 +1,159 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:study-001:1.0.0",
+    "id": "study-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Health Survey 2023"
+      },
+      {
+        "lang": "fr",
+        "value": "Enquête Santé 2023"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "National Health Survey 2023"
+      },
+      {
+        "lang": "fr",
+        "value": "Enquête Nationale sur la Santé 2023"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "A nationwide survey on health status and health behaviors among adults"
+      },
+      {
+        "lang": "fr",
+        "value": "Une enquête nationale sur l'état de santé et les comportements sanitaires des adultes"
+      }
+    ],
+    "abstract": [
+      {
+        "lang": "en",
+        "value": "This study collects data on health conditions, healthcare utilization, and health behaviors from a representative sample of the adult population. The survey includes questions about chronic conditions, medication use, doctor visits, hospital stays, and lifestyle factors such as smoking, alcohol consumption, and physical activity."
+      }
+    ],
+    "versionDate": "2023-06-15",
+    "dataSetReference": [
+      {
+        "urn": "urn:ddi:example.agency:dataset-001:1.0.0",
+        "id": "dataset-001",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "typeOfObject": "DataSet"
+      }
+    ],
+    "physicalInstanceReference": [
+      {
+        "urn": "urn:ddi:example.agency:phys-001:1.0.0",
+        "id": "phys-001",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "typeOfObject": "PhysicalInstance"
+      }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:study-002:1.0.0",
+    "id": "study-002",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Labor Force Survey Q4 2023"
+      },
+      {
+        "lang": "fr",
+        "value": "Enquête sur la population active T4 2023"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Quarterly Labor Force Survey"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Quarterly survey measuring labor market participation and employment status"
+      }
+    ],
+    "abstract": [
+      {
+        "lang": "en",
+        "value": "The Labor Force Survey provides quarterly statistics on employment, unemployment, and labor force participation rates. It is used by government agencies and researchers to monitor labor market trends and inform policy decisions."
+      }
+    ],
+    "versionDate": "2024-01-10",
+    "dataSetReference": [
+      {
+        "urn": "urn:ddi:example.agency:dataset-002:1.0.0",
+        "id": "dataset-002",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "typeOfObject": "DataSet"
+      }
+    ],
+    "physicalInstanceReference": [
+      {
+        "urn": "urn:ddi:example.agency:phys-002:1.0.0",
+        "id": "phys-002",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "typeOfObject": "PhysicalInstance"
+      }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:study-003:1.0.0",
+    "id": "study-003",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Education Attainment Survey 2022"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "National Education Attainment Survey"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Survey on educational attainment and completion rates across different demographic groups"
+      }
+    ],
+    "abstract": [
+      {
+        "lang": "en",
+        "value": "This survey examines educational attainment levels, school completion rates, and factors influencing educational success across various population subgroups."
+      }
+    ],
+    "versionDate": "2023-03-20",
+    "dataSetReference": [
+      {
+        "urn": "urn:ddi:example.agency:dataset-003:1.0.0",
+        "id": "dataset-003",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "typeOfObject": "DataSet"
+      }
+    ],
+    "isUniversallyUnique": true
+  }
+]

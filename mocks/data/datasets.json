@@ -1,0 +1,123 @@
+[
+  {
+    "urn": "urn:ddi:example.agency:dataset-001:1.0.0",
+    "id": "dataset-001",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Health Survey Dataset"
+      },
+      {
+        "lang": "fr",
+        "value": "Ensemble de données d'enquête sur la santé"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "National Health Survey Dataset 2023"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Dataset containing responses from the 2023 National Health Survey, including health status, healthcare utilization, and lifestyle factors"
+      }
+    ],
+    "variableSchemeReference": {
+      "urn": "urn:ddi:example.agency:variablescheme-001:1.0.0",
+      "id": "variablescheme-001",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "VariableScheme"
+    },
+    "physicalInstanceReference": {
+      "urn": "urn:ddi:example.agency:phys-001:1.0.0",
+      "id": "phys-001",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "PhysicalInstance"
+    },
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:dataset-002:1.0.0",
+    "id": "dataset-002",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Labor Force Survey Dataset"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Quarterly Labor Force Survey Dataset"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Dataset containing labor market data from the quarterly labor force survey"
+      }
+    ],
+    "variableSchemeReference": {
+      "urn": "urn:ddi:example.agency:variablescheme-002:1.0.0",
+      "id": "variablescheme-002",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "VariableScheme"
+    },
+    "physicalInstanceReference": {
+      "urn": "urn:ddi:example.agency:phys-002:1.0.0",
+      "id": "phys-002",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "PhysicalInstance"
+    },
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:dataset-003:1.0.0",
+    "id": "dataset-003",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "name": [
+      {
+        "lang": "en",
+        "value": "Education Attainment Dataset"
+      }
+    ],
+    "label": [
+      {
+        "lang": "en",
+        "value": "Education Attainment Survey Dataset 2022"
+      }
+    ],
+    "description": [
+      {
+        "lang": "en",
+        "value": "Dataset containing education-related data from the 2022 Education Attainment Survey"
+      }
+    ],
+    "variableSchemeReference": {
+      "urn": "urn:ddi:example.agency:variablescheme-003:1.0.0",
+      "id": "variablescheme-003",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "VariableScheme"
+    },
+    "physicalInstanceReference": {
+      "urn": "urn:ddi:example.agency:phys-003:1.0.0",
+      "id": "phys-003",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "PhysicalInstance"
+    },
+    "isUniversallyUnique": true
+  }
+]
