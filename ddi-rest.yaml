@@ -3,13 +3,20 @@ info:
   version: '1.0.0'
   title: 'DDI RESTful API, v1.0.0'
   description: |
-    The RESTful API for DDI (Data Documentation Initiative).
-    
-    This API provides access to DDI metadata resources including study units, physical instances, datasets, variables, concepts, concept schemes, and variable schemes.
+    REST API for **DDI Lifecycle** (DDI-L) metadata — the longitudinal, multi-wave documentation model of the [DDI Alliance](https://ddialliance.org/).
 
-    **Bulk retrieval:** `GET /items` returns every exposed item collection in one response (`ItemCatalog` in DDI JSON), with the **same query-parameter union as the collection list endpoints**. **`GET /items/{itemIdentifier}`** returns a single item across types (URN, `{agency}:{id}:{version}` segment, or plain id + `agencyID` & `version` query). Use per-type URLs when you know the resource type.
-    
-    DDI is an international standard for describing statistical and social science data.
+    **Current scope (this specification):** DDI-L **3.3** only. Payloads use DDI 3.3 structure items (`Variable`, `Concept`, `StudyUnit`, …) and vendor media types with `version=3.3`.
+
+    **Target scope (future versions of this API):** support **DDI Codebook** (DDI-C), **DDI Lifecycle** (DDI-L), and **DDI Cross Domain Integration** (DDI-CDI), with explicit product and DDI version selection (e.g. via path prefix or content negotiation). This v1 contract does not yet expose that dimension.
+
+    This API provides access to DDI-L structure resources including study units, physical instances, datasets, variables, concepts, and schemes.
+
+    ## Aggregated catalog vs single item
+
+    - **`GET /items`** returns an **`ItemCatalog`**: a **bundle of item collections** (properties `variables`, `concepts`, `conceptSchemes`, … — each an array). It is **not** a flat list of items and **not** paginated. Filters from per-type list endpoints apply per collection; use this for bulk export or discovery, not as the default client entry point.
+    - **`GET /items/{itemIdentifier}`** returns **one** DDI structure item when the type is unknown (polymorphic lookup).
+
+    Prefer paginated per-type endpoints (`GET /variables`, …) for routine list access.
 
     ## Identifier Resolution
 
@@ -31,6 +38,16 @@ info:
     - `application/vnd.ddi.structure+xml;version=3.3` - DDI XML format
     
     If no `Accept` header is provided, the API returns DDI JSON format by default.
+
+    ## Variable, CodeList, and Concept XML/JSON (Making Sense DDI-L 3.3 profile)
+
+    Variable, CodeList, and Concept payloads (JSON shape and DDI-L 3.3 XML) follow a fixed Making Sense structure profile:
+    - Variables use `l:VariableRepresentation` with reusable children (`r:CodeRepresentation`, `r:NumericRepresentation`, `r:TextRepresentation`, `r:DateRepresentation`, `r:RecommendedDataType`, `r:CodeListReference`).
+    - A Variable’s concept link is **`r:ConceptReference`** (reusable namespace), not `c:ConceptReference`.
+    - Code lists use `l:CodeList` / `l:CodeListScheme` (logical product), with `r:RecommendedDataType`, `r:CategorySchemeReference`, and codes as `l:Code` (`r:CategoryReference` + `r:Value`).
+    - Concepts use **`c:Concept`** (conceptual component) with `c:ConceptName`, `r:Label`, `r:Description`, and optional broader link **`c:SubclassOfReference`** (`r:URN` + `r:TypeOfObject` = `Concept`). This profile does **not** emit `c:Definition`.
+
+    **Publish checklist:** when changing this contract, update `ddi-rest.yaml` (spec + examples), mock JSON under `mocks/data/`, and `mocks/ddi-xml-converter.js` together.
 
     ## Pagination
 
@@ -61,7 +78,8 @@ tags:
     description: |
       Aggregated list (`GET /items`) and polymorphic item access (`GET /items/{itemIdentifier}`) across all exposed DDI collections.
   - name: Search
-    description: Cross-resource label search.
+    description: |
+      Cross-resource search. v1 exposes label search only (`GET /search/labels`); other DDI fields (description, name, …) may be added in later revisions.
   - name: Variables
     description: Variables and variable schemes.
   - name: Concepts
@@ -142,17 +160,17 @@ x-commons:
 paths:
   /items:
     get:
-      summary: "Get all items (aggregated)"
+      summary: "Get item catalog (aggregated collections)"
       tags:
         - Items
       description: |
-        Returns every DDI item collection exposed by this API version in a single payload (variables, concepts, schemes, study units, datasets, etc.).
+        Returns an **`ItemCatalog`**: one payload grouping **every exposed item collection** (variables, concepts, schemes, study units, datasets, …). In DDI JSON this is an object with one array property per type; in DDI XML, a single `ResourcePackage` with all items in a fixed order.
 
-        **Filtering** uses the **same query parameters as the per-type list endpoints** (`GET /variables`, `GET /concepts`, …), except **`offset` / `limit`** (this catalog is not paginated; page through a type-specific list instead). Each other parameter affects only the collections where it applies (e.g. `variableID` narrows `variables`, `conceptSchemeID` narrows concepts when resolving scheme membership, `studyID` narrows variables and datasets as on those lists). **`urn`** filters by resource URN within each collection; **`resourceID`** / typed ID parameters follow the usual rule: **plain IDs require `agencyID` and `version`** on the same request.
+        This is **not** a paginated flat list of items. Each property holds a **collection** of DDI structure items of that type. For paginated access to one type, use `GET /variables`, `GET /concepts`, etc.
+
+        **Filtering** uses the **same query parameters as the per-type list endpoints** (`GET /variables`, `GET /concepts`, …), except **`offset` / `limit`** (this catalog is not paginated). Each parameter affects only the collections where it applies (e.g. `variableID` narrows `variables`, `conceptSchemeID` narrows concepts when resolving scheme membership, `studyID` narrows variables and datasets as on those lists). **`urn`** filters by resource URN within each collection; **`resourceID`** / typed ID parameters follow the usual rule: **plain IDs require `agencyID` and `version`** on the same request.
 
         **`references`** resolves nested references per item like other collection endpoints; responses can be large.
-
-        **DDI JSON** returns a grouped object (`ItemCatalog`). **DDI XML** returns a single `ResourcePackage` containing all items in a fixed order (variables first, then concepts, …, then datasets).
       parameters: *parameters_items_get
       responses:
         <<: *common_responses
@@ -283,7 +301,7 @@ paths:
         - A URN (format: "urn:ddi:{agency}:{id}:{version}")
         - An ID (requires agencyID and version query parameters)
         
-        Returns detailed information about the concept including its definition, labels, and related variables.
+        Returns detailed information about the concept including labels, descriptions, and optional subclass (broader) reference.
       parameters:
         - $ref: "#/components/parameters/conceptID-path"
         - $ref: "#/components/parameters/agencyID"
@@ -551,7 +569,9 @@ paths:
       tags:
         - Search
       description: |
-        Search for DDI resources (variables, concepts, schemes, code lists, categories) by matching their labels.
+        Search for DDI-L structure resources (variables, concepts, schemes, code lists, categories) by matching their **labels**.
+
+        v1 is label-only. Future versions may extend search to other text fields (e.g. description) via additional endpoints or a `fields` parameter.
         
         The search is case-insensitive and matches labels in the specified language. By default, searches are performed in English.
         
@@ -1375,15 +1395,15 @@ components:
                   <r:Description>
                      <r:Content xml:lang="fr">Âge du participant en années au moment de l'examen de base</r:Content>
                   </r:Description>
-                  <c:ConceptReference>
+                  <r:ConceptReference>
                      <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
                      <r:TypeOfObject>Concept</r:TypeOfObject>
-                  </c:ConceptReference>
-                  <l:Representation>
-                     <l:NumericRepresentation>
-                        <l:RecommendedDataType>Integer</l:RecommendedDataType>
-                     </l:NumericRepresentation>
-                  </l:Representation>
+                  </r:ConceptReference>
+                  <l:VariableRepresentation>
+                     <r:NumericRepresentation>
+                        <r:RecommendedDataType>Integer</r:RecommendedDataType>
+                     </r:NumericRepresentation>
+                  </l:VariableRepresentation>
                </l:Variable>
             </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
@@ -1429,15 +1449,15 @@ components:
                   <r:Description>
                      <r:Content xml:lang="fr">Âge du participant en années au moment de l'examen de base</r:Content>
                   </r:Description>
-                  <c:ConceptReference>
+                  <r:ConceptReference>
                      <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
                      <r:TypeOfObject>Concept</r:TypeOfObject>
-                  </c:ConceptReference>
-                  <l:Representation>
-                     <l:NumericRepresentation>
-                        <l:RecommendedDataType>Integer</l:RecommendedDataType>
-                     </l:NumericRepresentation>
-                  </l:Representation>
+                  </r:ConceptReference>
+                  <l:VariableRepresentation>
+                     <r:NumericRepresentation>
+                        <r:RecommendedDataType>Integer</r:RecommendedDataType>
+                     </r:NumericRepresentation>
+                  </l:VariableRepresentation>
                </l:Variable>
             </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
@@ -1499,27 +1519,26 @@ components:
             <?xml version="1.0" encoding="UTF-8"?>
             <g:ResourcePackage xmlns:c="ddi:conceptualcomponent:3_3" xmlns:d="ddi:datacollection:3_3" xmlns:g="ddi:group:3_3" xmlns:i="ddi:instance:3_3" xmlns:l="ddi:logicalproduct:3_3" xmlns:pi="ddi:physicalinstance:3_3" xmlns:r="ddi:reusable:3_3" xmlns:s="ddi:studyunit:3_3" xmlns="ddi:instance:3_3">
                <c:Concept isUniversallyUnique="true">
-                  <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
-                  <r:UserID typeOfUserID="InternalID">CONCEPT_AGE</r:UserID>
+                  <r:URN>urn:ddi:example.agency:concept-001.1:1.0.0</r:URN>
+                  <r:UserID typeOfUserID="InternalID">CONCEPT_AGE_YEARS</r:UserID>
                   <c:ConceptName>
-                     <r:String xml:lang="en">age</r:String>
+                     <r:String xml:lang="en">age_in_years</r:String>
                   </c:ConceptName>
                   <c:ConceptName>
-                     <r:String xml:lang="fr">age</r:String>
+                     <r:String xml:lang="fr">age_en_annees</r:String>
                   </c:ConceptName>
                   <r:Label>
-                     <r:Content xml:lang="en">Age</r:Content>
-                     <r:Content xml:lang="fr">Âge</r:Content>
+                     <r:Content xml:lang="en">Age in years</r:Content>
+                     <r:Content xml:lang="fr">Âge en années</r:Content>
                   </r:Label>
                   <r:Description>
-                     <r:Content xml:lang="en">The length of time that a person has lived</r:Content>
+                     <r:Content xml:lang="en">Age measured as completed years of life</r:Content>
+                     <r:Content xml:lang="fr">Âge mesuré en années révolues</r:Content>
                   </r:Description>
-                  <r:Description>
-                     <r:Content xml:lang="fr">La durée de vie d'une personne</r:Content>
-                  </r:Description>
-                  <c:Definition>
-                     <r:Content xml:lang="en">Age is measured in years from birth</r:Content>
-                  </c:Definition>
+                  <c:SubclassOfReference>
+                     <r:URN>urn:ddi:example.agency:concept-001:1.0.0</r:URN>
+                     <r:TypeOfObject>Concept</r:TypeOfObject>
+                  </c:SubclassOfReference>
                </c:Concept>
             </g:ResourcePackage>
         application/vnd.ddi.structure+json;version=3.3:
@@ -1614,7 +1633,7 @@ components:
           description: |
             DDI 3.3 compliant XML response.
             The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
-            Code list schemes are returned as `d:CodeListScheme` elements within the ResourcePackage.
+            Code list schemes are returned as `l:CodeListScheme` elements within the ResourcePackage.
           schema:
             type: array
             xml:
@@ -1634,7 +1653,7 @@ components:
           description: |
             DDI 3.3 compliant XML response.
             The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
-            The code list scheme is returned as a `d:CodeListScheme` element within the ResourcePackage.
+            The code list scheme is returned as a `l:CodeListScheme` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/CodeListScheme"
@@ -1654,7 +1673,7 @@ components:
           description: |
             DDI 3.3 compliant XML response.
             The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
-            Code lists are returned as `d:CodeList` elements within the ResourcePackage.
+            Code lists are returned as `l:CodeList` elements within the ResourcePackage.
           schema:
             type: array
             xml:
@@ -1674,7 +1693,7 @@ components:
           description: |
             DDI 3.3 compliant XML response.
             The response is wrapped in a `g:ResourcePackage` element with DDI 3.3 namespaces.
-            The code list is returned as a `d:CodeList` element within the ResourcePackage.
+            The code list is returned as a `l:CodeList` element within the ResourcePackage.
           schema:
             allOf:
               - $ref: "#/components/schemas/CodeList"
@@ -1944,10 +1963,10 @@ components:
         conceptReference:
           $ref: "#/components/schemas/Reference"
           xml:
-            name: c:ConceptReference
+            name: r:ConceptReference
           description: |
-            Reference to the concept associated with this variable.
-            
+            Reference to the concept associated with this variable (reusable `r:ConceptReference`).
+
             When `references` parameter is `children` or `all`, this property is replaced by `concept` containing the full Concept object.
         concept:
           $ref: "#/components/schemas/Concept"
@@ -1960,7 +1979,7 @@ components:
         representation:
           $ref: "#/components/schemas/VariableRepresentation"
           xml:
-            name: l:Representation
+            name: l:VariableRepresentation
           description: The representation of the variable (e.g., numeric, text, date, code)
         sourceVariableReference:
           $ref: "#/components/schemas/Reference"
@@ -2024,7 +2043,11 @@ components:
       type: object
       description: |
         A Concept defines an idea or category used to describe data.
-        
+
+        XML element: `c:Concept` (conceptual component), per the Making Sense DDI-L 3.3 profile
+        (`c:ConceptName`, `r:Label`, `r:Description`, optional `c:SubclassOfReference`).
+        This profile does not emit `c:Definition`.
+
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
       xml:
         name: c:Concept
@@ -2100,27 +2123,26 @@ components:
               name: r:Content
             $ref: "#/components/schemas/Description"
           description: Descriptions in different languages
-        definition:
-          type: array
-          items:
-            $ref: "#/components/schemas/Description"
-          description: Formal definitions in different languages
         subclassOfReference:
           $ref: "#/components/schemas/Reference"
+          xml:
+            name: c:SubclassOfReference
           description: |
-            Reference to the parent concept (subclass relationship).
-            
-            The child concept references its parent concept. For example, if concept-001.1 has subclassOfReference to concept-001, 
+            Reference to the parent (broader) concept (`c:SubclassOfReference`).
+
+            The child concept references its parent concept. For example, if concept-001.1 has subclassOfReference to concept-001,
             then concept-001.1 is a child (subclass) of concept-001 (the parent).
-            
+
             A concept can have 0 or 1 parent concept.
-            
+
             When `references` parameter is `children` or `all`, this property is replaced by `subclassOf` containing the full Concept object.
         subclassOf:
           $ref: "#/components/schemas/Concept"
+          xml:
+            name: c:Concept
           description: |
             The full Concept object (returned when `references=children` or `references=all`).
-            
+
             This property is only present when `references` is not `none`.
         isUniversallyUnique:
           type: boolean
@@ -2129,42 +2151,31 @@ components:
         - id
         - name
       example:
-        urn: "urn:ddi:example.agency:concept-001:1.0.0"
-        id: "concept-001"
+        urn: "urn:ddi:example.agency:concept-001.1:1.0.0"
+        id: "concept-001.1"
         agencyID: "example.agency"
         version: "1.0.0"
         userID:
-          value: "CONCEPT_AGE"
+          value: "CONCEPT_AGE_YEARS"
           typeOfUserID: "InternalID"
         name:
           - lang: "en"
-            value: "age"
+            value: "age_in_years"
           - lang: "fr"
-            value: "age"
+            value: "age_en_annees"
         label:
           - lang: "en"
-            value: "Age"
+            value: "Age in years"
           - lang: "fr"
-            value: "Âge"
+            value: "Âge en années"
         description:
           - lang: "en"
-            value: "The length of time that a person has lived"
+            value: "Age measured as completed years of life"
           - lang: "fr"
-            value: "La durée de vie d'une personne"
-        definition:
-          - lang: "en"
-            value: "Age is measured in years from birth"
-          - lang: "fr"
-            value: "L'âge est mesuré en années depuis la naissance"
-        conceptSchemeReference:
-          urn: "urn:ddi:example.agency:conceptscheme-001:1.0.0"
-          id: "conceptscheme-001"
-          agencyID: "example.agency"
-          version: "1.0.0"
-          typeOfObject: "ConceptScheme"
+            value: "Âge mesuré en années révolues"
         subclassOfReference:
-          urn: "urn:ddi:example.agency:concept-parent:1.0.0"
-          id: "concept-parent"
+          urn: "urn:ddi:example.agency:concept-001:1.0.0"
+          id: "concept-001"
           agencyID: "example.agency"
           version: "1.0.0"
           typeOfObject: "Concept"
@@ -2472,6 +2483,8 @@ components:
         A CodeListScheme is a collection of code lists that provides structured vocabularies for categorical data.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+      xml:
+        name: l:CodeListScheme
       properties:
         urn:
           type: string
@@ -2568,9 +2581,14 @@ components:
         A CodeList defines a set of valid codes (values) for a variable.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+        XML element: `l:CodeList` (logical product), per the Making Sense DDI-L 3.3 profile.
+      xml:
+        name: l:CodeList
       properties:
         urn:
           type: string
+          xml:
+            name: r:URN
           description: |
             The URN (Uniform Resource Name) of the code list.
             Format: "urn:ddi:{agency}:{id}:{version}"
@@ -2606,6 +2624,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Label"
+          xml:
+            name: l:CodeListName
           description: Code list names in different languages
         label:
           type: array
@@ -2617,6 +2637,30 @@ components:
           items:
             $ref: "#/components/schemas/Description"
           description: Descriptions in different languages
+        recommendedDataType:
+          type: string
+          xml:
+            name: r:RecommendedDataType
+          enum: [String, Integer, Float, Double, Decimal, UnsignedInt, Date, DateTime, Boolean]
+          description: |
+            Recommended data type for code values (`r:RecommendedDataType`).
+            Typically `String` when codes are alphanumeric.
+        categorySchemeReference:
+          $ref: "#/components/schemas/Reference"
+          xml:
+            name: r:CategorySchemeReference
+          description: |
+            Reference to the category scheme associated with this code list.
+            
+            When `references` parameter is `children` or `all`, this property may be replaced by `categoryScheme` containing the full CategoryScheme object.
+        categoryScheme:
+          $ref: "#/components/schemas/CategoryScheme"
+          xml:
+            name: l:CategoryScheme
+          description: |
+            The full CategoryScheme object (returned when `references=children` or `references=all`).
+            
+            This property is only present when `references` is not `none`.
         codes:
           type: array
           items:
@@ -2651,6 +2695,7 @@ components:
             value: "Valid codes for gender variable"
           - lang: "fr"
             value: "Codes valides pour la variable genre"
+        recommendedDataType: "String"
         categorySchemeReference:
           urn: "urn:ddi:example.agency:categoryscheme-001:1.0.0"
           id: "categoryscheme-001"
@@ -2662,10 +2707,24 @@ components:
             id: "code-001"
             agencyID: "example.agency"
             version: "1.0.0"
+            value: "M"
+            categoryReference:
+              urn: "urn:ddi:example.agency:category-001:1.0.0"
+              id: "category-001"
+              agencyID: "example.agency"
+              version: "1.0.0"
+              typeOfObject: "Category"
           - urn: "urn:ddi:example.agency:code-002:1.0.0"
             id: "code-002"
             agencyID: "example.agency"
             version: "1.0.0"
+            value: "F"
+            categoryReference:
+              urn: "urn:ddi:example.agency:category-002:1.0.0"
+              id: "category-002"
+              agencyID: "example.agency"
+              version: "1.0.0"
+              typeOfObject: "Category"
         isUniversallyUnique: true
 
     Code:
@@ -2674,6 +2733,9 @@ components:
         A Code represents a valid value in a code list.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
+        XML element: `l:Code` with `r:CategoryReference` and `r:Value`.
+      xml:
+        name: l:Code
       properties:
         urn:
           type: string
@@ -2710,15 +2772,21 @@ components:
             Example: "1.0.0"
         value:
           type: string
+          xml:
+            name: r:Value
           description: The actual code value (e.g., "1", "2", "3")
         categoryReference:
           $ref: "#/components/schemas/Reference"
+          xml:
+            name: r:CategoryReference
           description: |
             Reference to the category associated with this code.
             
             When `references` parameter is `children` or `all`, this property is replaced by `category` containing the full Category object.
         category:
           $ref: "#/components/schemas/Category"
+          xml:
+            name: l:Category
           description: |
             The full Category object (returned when `references=children` or `references=all`).
             
@@ -3055,33 +3123,35 @@ components:
 
     VariableRepresentation:
       type: object
-      description: The representation of a variable
+      description: |
+        The representation of a variable.
+        XML: `l:VariableRepresentation` with reusable (`r:`) typed representation children.
       xml:
-        name: l:Representation
+        name: l:VariableRepresentation
       properties:
         codeRepresentation:
           type: object
           xml:
-            name: l:CodeRepresentation
+            name: r:CodeRepresentation
           properties:
             recommendedDataType:
               type: string
               xml:
-                name: l:RecommendedDataType
+                name: r:RecommendedDataType
               enum: [String, Integer, Float, Double, Decimal, Date, DateTime, Boolean]
               description: The recommended data type
             codeListReference:
               $ref: "#/components/schemas/Reference"
               xml:
-                name: l:CodeListReference
+                name: r:CodeListReference
               description: |
-                Reference to a code list.
+                Reference to a code list (`r:CodeListReference` with URN + TypeOfObject).
                 
                 When `references` parameter is `children` or `all`, this property is replaced by `codeList` containing the full CodeList object.
             codeList:
               $ref: "#/components/schemas/CodeList"
               xml:
-                name: d:CodeList
+                name: l:CodeList
               description: |
                 The full CodeList object (returned when `references=children` or `references=all`).
                 
@@ -3090,52 +3160,52 @@ components:
         numericRepresentation:
           type: object
           xml:
-            name: l:NumericRepresentation
+            name: r:NumericRepresentation
           properties:
             recommendedDataType:
               type: string
               xml:
-                name: l:RecommendedDataType
+                name: r:RecommendedDataType
               enum: [Integer, Float, Double, Decimal]
               description: The numeric data type
             format:
               type: string
               xml:
-                name: l:Format
+                name: r:Format
               description: Format specification (e.g., number format)
           description: Numeric representation
         textRepresentation:
           type: object
           xml:
-            name: l:TextRepresentation
+            name: r:TextRepresentation
           properties:
             recommendedDataType:
               type: string
               xml:
-                name: l:RecommendedDataType
+                name: r:RecommendedDataType
               enum: [String, LongString]
               description: The text data type
             maxLength:
               type: integer
               xml:
-                name: l:MaxLength
+                name: r:MaxLength
               description: Maximum length of the text
           description: Text representation
         dateRepresentation:
           type: object
           xml:
-            name: l:DateRepresentation
+            name: r:DateRepresentation
           properties:
             recommendedDataType:
               type: string
               xml:
-                name: l:RecommendedDataType
+                name: r:RecommendedDataType
               enum: [Date, DateTime]
               description: The date data type
             format:
               type: string
               xml:
-                name: l:Format
+                name: r:Format
               description: Date format specification
           description: Date representation
         type:

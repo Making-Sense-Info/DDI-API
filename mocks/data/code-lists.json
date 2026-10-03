@@ -38,6 +38,14 @@
         "value": "Codes valides pour la variable sexe"
       }
     ],
+    "recommendedDataType": "String",
+    "categorySchemeReference": {
+      "urn": "urn:ddi:example.agency:categoryscheme-001:1.0.0",
+      "id": "categoryscheme-001",
+      "agencyID": "example.agency",
+      "version": "1.0.0",
+      "typeOfObject": "CategoryScheme"
+    },
     "codes": [
       {
         "urn": "urn:ddi:example.agency:code-001:1.0.0",

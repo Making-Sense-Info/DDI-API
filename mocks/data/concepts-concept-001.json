@@ -37,16 +37,5 @@
       "value": "La durée de vie d'une personne"
     }
   ],
-  "definition": [
-    {
-      "lang": "en",
-      "value": "Age is measured in years from birth"
-    },
-    {
-      "lang": "fr",
-      "value": "L'âge est mesuré en années depuis la naissance"
-    }
-  ],
   "isUniversallyUnique": true
 }
-

@@ -344,7 +344,6 @@ The `references` query parameter controls how referenced objects are returned. I
       "name": [{"lang": "en", "value": "age"}],
       "label": [{"lang": "en", "value": "Age"}],
       "description": [...],
-      "definition": [...],
       "isUniversallyUnique": true
     }
   }
@@ -364,7 +363,6 @@ The `references` query parameter controls how referenced objects are returned. I
       "name": [{"lang": "en", "value": "age"}],
       "label": [{"lang": "en", "value": "Age"}],
       "description": [...],
-      "definition": [...],
       "isUniversallyUnique": true
     }
   }
@@ -536,7 +534,6 @@ Note: Children are returned as identifiers only (URN, id, agencyID, version).
       "name": [{"lang": "en", "value": "age"}],
       "label": [{"lang": "en", "value": "Age"}],
       "description": [...],
-      "definition": [...],
       "isUniversallyUnique": true
     }
   ]
@@ -555,7 +552,6 @@ Note: Children identifiers are resolved to full objects. References within these
       "name": [{"lang": "en", "value": "age"}],
       "label": [{"lang": "en", "value": "Age"}],
       "description": [...],
-      "definition": [...],
       "subclassOf": {
         "urn": "urn:ddi:example.agency:concept-004:1.0.0",
         "id": "concept-004",

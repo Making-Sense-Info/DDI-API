@@ -2,7 +2,7 @@
  * DDI XML Converter
  * 
  * Converts JSON API responses to DDI 3.3 compliant XML format.
- * Based on the DDI structure from Constances-DDI-groupings.xml example.
+ * Variable / CodeList / Concept shapes follow the Making Sense DDI-L 3.3 profile.
  */
 
 const builder = require('xmlbuilder');
@@ -85,9 +85,9 @@ function convertObjectToDDI(parent, obj) {
         element.ele('l:VariableName')
           .ele('r:String', n.value).att('xml:lang', n.lang);
       });
-    } else if (elementName === 'd:CodeList' || elementName === 'd:CodeListScheme') {
+    } else if (elementName === 'l:CodeList' || elementName === 'l:CodeListScheme') {
       obj.name.forEach(n => {
-        element.ele('d:CodeListName')
+        element.ele('l:CodeListName')
           .ele('r:String', n.value).att('xml:lang', n.lang);
       });
     }
@@ -109,17 +109,9 @@ function convertObjectToDDI(parent, obj) {
     });
   }
 
-  // Handle definition (for Concepts)
-  if (obj.definition && Array.isArray(obj.definition)) {
-    obj.definition.forEach(d => {
-      element.ele('c:Definition')
-        .ele('r:Content', d.value).att('xml:lang', d.lang);
-    });
-  }
-
-  // Handle conceptReference
+  // Handle conceptReference (reusable r:ConceptReference)
   if (obj.conceptReference) {
-    const refEle = element.ele('c:ConceptReference');
+    const refEle = element.ele('r:ConceptReference');
     refEle.ele('r:URN', obj.conceptReference.urn || `urn:ddi:${obj.conceptReference.agencyID}:${obj.conceptReference.id}:${obj.conceptReference.version}`);
     refEle.ele('r:TypeOfObject', obj.conceptReference.typeOfObject || obj.conceptReference.type);
   }
@@ -141,9 +133,9 @@ function convertObjectToDDI(parent, obj) {
     convertObjectToDDI(element, obj.subclassOf);
   }
 
-  // Handle representation (for Variables)
+  // Handle representation (for Variables) — l:VariableRepresentation + r:* children
   if (obj.representation) {
-    const repEle = element.ele('l:Representation');
+    const repEle = element.ele('l:VariableRepresentation');
     convertRepresentation(repEle, obj.representation);
   }
 
@@ -198,7 +190,7 @@ function convertObjectToDDI(parent, obj) {
     obj.codeLists.forEach(codeList => {
       if (typeof codeList === 'string' || (codeList.id && !codeList.name)) {
         // It's an identifier reference
-        const codeListRef = element.ele('d:CodeList');
+        const codeListRef = element.ele('l:CodeList');
         if (codeList.isUniversallyUnique === true) {
           codeListRef.att('isUniversallyUnique', 'true');
         }
@@ -227,28 +219,30 @@ function convertObjectToDDI(parent, obj) {
     });
   }
 
-  // Handle codes array (for CodeList)
+  // CodeList: recommendedDataType then categorySchemeReference then codes
+  if (obj.recommendedDataType !== undefined && (elementName === 'l:CodeList' || obj.codes !== undefined)) {
+    element.ele('r:RecommendedDataType', String(obj.recommendedDataType));
+  }
+
+  if (obj.categorySchemeReference) {
+    const refEle = element.ele('r:CategorySchemeReference');
+    refEle.ele('r:URN', obj.categorySchemeReference.urn || `urn:ddi:${obj.categorySchemeReference.agencyID}:${obj.categorySchemeReference.id}:${obj.categorySchemeReference.version}`);
+    refEle.ele('r:TypeOfObject', obj.categorySchemeReference.typeOfObject || obj.categorySchemeReference.type);
+  }
+
+  if (obj.categoryScheme) {
+    convertObjectToDDI(element, obj.categoryScheme);
+  }
+
   if (obj.codes && Array.isArray(obj.codes)) {
     obj.codes.forEach(code => {
       convertCodeToDDI(element, code);
     });
   }
 
-  // Handle categorySchemeReference (for CodeList)
-  if (obj.categorySchemeReference) {
-    const refEle = element.ele('d:CategorySchemeReference');
-    refEle.ele('r:URN', obj.categorySchemeReference.urn || `urn:ddi:${obj.categorySchemeReference.agencyID}:${obj.categorySchemeReference.id}:${obj.categorySchemeReference.version}`);
-    refEle.ele('r:TypeOfObject', obj.categorySchemeReference.typeOfObject || obj.categorySchemeReference.type);
-  }
-
-  // Handle categoryScheme (when resolved)
-  if (obj.categoryScheme) {
-    convertObjectToDDI(element, obj.categoryScheme);
-  }
-
-  // Handle categoryReference (for Code)
-  if (obj.categoryReference) {
-    const refEle = element.ele('d:CategoryReference');
+  // Handle categoryReference (for Code) — r:CategoryReference
+  if (obj.categoryReference && elementName === 'l:Code') {
+    const refEle = element.ele('r:CategoryReference');
     refEle.ele('r:URN', obj.categoryReference.urn || `urn:ddi:${obj.categoryReference.agencyID}:${obj.categoryReference.id}:${obj.categoryReference.version}`);
     refEle.ele('r:TypeOfObject', obj.categoryReference.typeOfObject || obj.categoryReference.type);
   }
@@ -258,9 +252,9 @@ function convertObjectToDDI(parent, obj) {
     convertObjectToDDI(element, obj.category);
   }
 
-  // Handle value (for Code)
-  if (obj.value !== undefined) {
-    element.ele('d:Value', String(obj.value));
+  // Handle value (for Code) — r:Value
+  if (obj.value !== undefined && elementName === 'l:Code') {
+    element.ele('r:Value', String(obj.value));
   }
 
   return element;
@@ -273,54 +267,79 @@ function convertRepresentation(parent, representation) {
   if (!representation) return;
 
   if (representation.codeRepresentation) {
-    const codeRep = parent.ele('l:CodeRepresentation');
-    codeRep.ele('l:RecommendedDataType', representation.codeRepresentation.recommendedDataType);
-    
+    const codeRep = parent.ele('r:CodeRepresentation');
+    if (representation.codeRepresentation.recommendedDataType !== undefined) {
+      codeRep.ele('r:RecommendedDataType', representation.codeRepresentation.recommendedDataType);
+    }
+
     if (representation.codeRepresentation.codeListReference) {
-      const refEle = codeRep.ele('l:CodeListReference');
-      refEle.ele('r:URN', representation.codeRepresentation.codeListReference.urn || 
+      const refEle = codeRep.ele('r:CodeListReference');
+      refEle.ele('r:URN', representation.codeRepresentation.codeListReference.urn ||
         `urn:ddi:${representation.codeRepresentation.codeListReference.agencyID}:${representation.codeRepresentation.codeListReference.id}:${representation.codeRepresentation.codeListReference.version}`);
       refEle.ele('r:TypeOfObject', representation.codeRepresentation.codeListReference.typeOfObject || representation.codeRepresentation.codeListReference.type);
     }
-    
+
     if (representation.codeRepresentation.codeList) {
       convertObjectToDDI(codeRep, representation.codeRepresentation.codeList);
     }
   }
 
   if (representation.numericRepresentation) {
-    const numRep = parent.ele('l:NumericRepresentation');
-    numRep.ele('l:RecommendedDataType', representation.numericRepresentation.recommendedDataType);
-    
+    const numRep = parent.ele('r:NumericRepresentation');
+    if (representation.numericRepresentation.recommendedDataType !== undefined) {
+      numRep.ele('r:RecommendedDataType', representation.numericRepresentation.recommendedDataType);
+    }
+
     if (representation.numericRepresentation.format) {
-      numRep.ele('l:Format', representation.numericRepresentation.format);
+      numRep.ele('r:Format', representation.numericRepresentation.format);
+    }
+
+    if (representation.numericRepresentation.numberRange) {
+      const range = representation.numericRepresentation.numberRange;
+      const rangeEle = numRep.ele('r:NumberRange');
+      if (range.minimum !== undefined) {
+        rangeEle.ele('r:Low', String(range.minimum)).att('isInclusive', 'true');
+      }
+      if (range.maximum !== undefined) {
+        rangeEle.ele('r:High', String(range.maximum)).att('isInclusive', 'true');
+      }
     }
   }
 
   if (representation.textRepresentation) {
-    const textRep = parent.ele('l:TextRepresentation');
-    textRep.ele('l:RecommendedDataType', representation.textRepresentation.recommendedDataType);
-    
+    const textRep = parent.ele('r:TextRepresentation');
+    if (representation.textRepresentation.recommendedDataType !== undefined) {
+      textRep.ele('r:RecommendedDataType', representation.textRepresentation.recommendedDataType);
+    }
+
     if (representation.textRepresentation.maxLength !== undefined) {
-      textRep.ele('l:MaxLength', String(representation.textRepresentation.maxLength));
+      textRep.att('maxLength', String(representation.textRepresentation.maxLength));
     }
   }
 
   if (representation.dateRepresentation) {
-    const dateRep = parent.ele('l:DateRepresentation');
-    dateRep.ele('l:RecommendedDataType', representation.dateRepresentation.recommendedDataType);
-    
+    const dateRep = parent.ele('r:DateRepresentation');
+    if (representation.dateRepresentation.recommendedDataType !== undefined) {
+      dateRep.ele('r:RecommendedDataType', representation.dateRepresentation.recommendedDataType);
+    }
+
     if (representation.dateRepresentation.format) {
-      dateRep.ele('l:Format', representation.dateRepresentation.format);
+      dateRep.ele('r:Format', representation.dateRepresentation.format);
     }
   }
 }
 
 /**
- * Convert a Code object to DDI XML
+ * Convert a Code object to DDI XML (l:Code)
  */
 function convertCodeToDDI(parent, code) {
-  return convertObjectToDDI(parent, code);
+  if (!code || typeof code !== 'object') {
+    return null;
+  }
+
+  // Ensure Code element name even when typeOfObject is absent
+  const codeObj = { ...code, typeOfObject: code.typeOfObject || code.type || 'Code' };
+  return convertObjectToDDI(parent, codeObj);
 }
 
 /**
@@ -344,15 +363,15 @@ function getDDIElementName(obj) {
       case 'VariableScheme':
         return 'l:VariableScheme';
       case 'CodeList':
-        return 'd:CodeList';
+        return 'l:CodeList';
       case 'CodeListScheme':
-        return 'd:CodeListScheme';
+        return 'l:CodeListScheme';
       case 'CategoryScheme':
         return 'l:CategoryScheme';
       case 'Category':
         return 'l:Category';
       case 'Code':
-        return 'd:Code';
+        return 'l:Code';
       default:
         return 'r:Item';
     }
@@ -361,15 +380,15 @@ function getDDIElementName(obj) {
   // Infer from structure
   if (obj.concepts !== undefined) return 'c:ConceptScheme';
   if (obj.variables !== undefined) return 'l:VariableScheme';
-  if (obj.codeLists !== undefined) return 'd:CodeListScheme';
+  if (obj.codeLists !== undefined) return 'l:CodeListScheme';
   if (obj.categories !== undefined) return 'l:CategoryScheme';
-  if (obj.codes !== undefined) return 'd:CodeList';
-  if (obj.value !== undefined && (obj.categoryReference !== undefined || obj.category !== undefined)) return 'd:Code';
-  if (obj.definition !== undefined || obj.subclassOfReference !== undefined || obj.subclassOf !== undefined) return 'c:Concept';
+  if (obj.codes !== undefined) return 'l:CodeList';
+  if (obj.value !== undefined && (obj.categoryReference !== undefined || obj.category !== undefined)) return 'l:Code';
+  if (obj.subclassOfReference !== undefined || obj.subclassOf !== undefined) return 'c:Concept';
   if (obj.representation !== undefined) return 'l:Variable';
-  if (obj.label && !obj.name && !obj.value && !obj.definition && !obj.representation) return 'l:Category';
+  if (obj.label && !obj.name && !obj.value && !obj.representation) return 'l:Category';
   // If it has name and label but no other identifying features, check if it looks like a Variable
-  if (obj.name && obj.label && !obj.definition && !obj.value && !obj.codes) {
+  if (obj.name && obj.label && !obj.value && !obj.codes) {
     // Could be Variable or Concept - default to Variable if no other indicators
     return 'l:Variable';
   }
