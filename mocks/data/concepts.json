@@ -4,39 +4,22 @@
     "id": "concept-001",
     "agencyID": "example.agency",
     "version": "1.0.0",
+    "typeOfObject": "Concept",
     "userID": {
       "value": "CONCEPT_AGE",
       "typeOfUserID": "InternalID"
     },
     "name": [
-      {
-        "lang": "en",
-        "value": "age"
-      },
-      {
-        "lang": "fr",
-        "value": "âge"
-      }
+      { "lang": "en", "value": "age" },
+      { "lang": "fr", "value": "âge" }
     ],
     "label": [
-      {
-        "lang": "en",
-        "value": "Age"
-      },
-      {
-        "lang": "fr",
-        "value": "Âge"
-      }
+      { "lang": "en", "value": "Age" },
+      { "lang": "fr", "value": "Âge" }
     ],
     "description": [
-      {
-        "lang": "en",
-        "value": "The length of time that a person has lived"
-      },
-      {
-        "lang": "fr",
-        "value": "La durée de vie d'une personne"
-      }
+      { "lang": "en", "value": "The length of time that a person has lived" },
+      { "lang": "fr", "value": "La durée de vie d'une personne" }
     ],
     "isUniversallyUnique": true
   },
@@ -45,39 +28,46 @@
     "id": "concept-002",
     "agencyID": "example.agency",
     "version": "1.0.0",
+    "typeOfObject": "Concept",
     "userID": {
       "value": "CONCEPT_GENDER",
       "typeOfUserID": "InternalID"
     },
     "name": [
-      {
-        "lang": "en",
-        "value": "gender"
-      },
-      {
-        "lang": "fr",
-        "value": "sexe"
-      }
+      { "lang": "en", "value": "gender" },
+      { "lang": "fr", "value": "sexe" }
     ],
     "label": [
-      {
-        "lang": "en",
-        "value": "Gender"
-      },
-      {
-        "lang": "fr",
-        "value": "Sexe"
-      }
+      { "lang": "en", "value": "Gender" },
+      { "lang": "fr", "value": "Sexe" }
     ],
     "description": [
-      {
-        "lang": "en",
-        "value": "A person's gender identity"
-      },
-      {
-        "lang": "fr",
-        "value": "L'identité de genre d'une personne"
-      }
+      { "lang": "en", "value": "A person's gender identity" },
+      { "lang": "fr", "value": "L'identité de genre d'une personne" }
+    ],
+    "isUniversallyUnique": true
+  },
+  {
+    "urn": "urn:ddi:example.agency:concept-004:1.0.0",
+    "id": "concept-004",
+    "agencyID": "example.agency",
+    "version": "1.0.0",
+    "typeOfObject": "Concept",
+    "userID": {
+      "value": "CONCEPT_ANTHROPOMETRY",
+      "typeOfUserID": "InternalID"
+    },
+    "name": [
+      { "lang": "en", "value": "anthropometry" },
+      { "lang": "fr", "value": "anthropometrie" }
+    ],
+    "label": [
+      { "lang": "en", "value": "Anthropometry" },
+      { "lang": "fr", "value": "Anthropométrie" }
+    ],
+    "description": [
+      { "lang": "en", "value": "Broader concept covering body measurements" },
+      { "lang": "fr", "value": "Concept plus large couvrant les mesures corporelles" }
     ],
     "isUniversallyUnique": true
   },
@@ -86,39 +76,22 @@
     "id": "concept-003",
     "agencyID": "example.agency",
     "version": "1.0.0",
+    "typeOfObject": "Concept",
     "userID": {
       "value": "CONCEPT_BMI",
       "typeOfUserID": "InternalID"
     },
     "name": [
-      {
-        "lang": "en",
-        "value": "body_mass_index"
-      },
-      {
-        "lang": "fr",
-        "value": "indice_masse_corporelle"
-      }
+      { "lang": "en", "value": "body_mass_index" },
+      { "lang": "fr", "value": "indice_masse_corporelle" }
     ],
     "label": [
-      {
-        "lang": "en",
-        "value": "Body Mass Index"
-      },
-      {
-        "lang": "fr",
-        "value": "Indice de masse corporelle"
-      }
+      { "lang": "en", "value": "Body Mass Index" },
+      { "lang": "fr", "value": "Indice de masse corporelle" }
     ],
     "description": [
-      {
-        "lang": "en",
-        "value": "A measure of body fat based on height and weight"
-      },
-      {
-        "lang": "fr",
-        "value": "Une mesure de la graisse corporelle basée sur la taille et le poids"
-      }
+      { "lang": "en", "value": "A measure of body fat based on height and weight" },
+      { "lang": "fr", "value": "Une mesure de la graisse corporelle basée sur la taille et le poids" }
     ],
     "subclassOfReference": {
       "urn": "urn:ddi:example.agency:concept-004:1.0.0",

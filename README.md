@@ -12,7 +12,15 @@ Interactive OpenAPI 3.1 documentation — browse every endpoint and try requests
 
 The mock server is at **[ddi-api.making-sense.info](https://ddi-api.making-sense.info)** (base path `/ddi/v1`). The contract itself lives in [`ddi-rest.yaml`](ddi-rest.yaml).
 
-Variable, CodeList, and Concept XML/JSON follow the Making Sense DDI-L 3.3 structure profile (`l:VariableRepresentation` with `r:` children; `l:CodeList` / `l:Code`; `c:Concept` + `c:SubclassOfReference`; Variable→Concept as `r:ConceptReference`). When changing that contract, update `ddi-rest.yaml`, mock JSON under `mocks/data/`, and `mocks/ddi-xml-converter.js` together.
+Variable, CodeList, Concept, Schemes, and Groups XML/JSON follow the Making Sense DDI-L 3.3 structure profile aligned with Mekong conversion `toDOM`:
+- Variable: `l:VariableRepresentation` (`r:Code|Numeric|Text|DateTimeRepresentation`), `r:ConceptReference`, `r:SourceVariableReference`
+- Concept: `c:Concept` + `c:SubclassOfReference` (no `c:Definition`)
+- CodeList / Category: `l:CodeList`, `l:Code`, `l:CategoryScheme`, `l:Category`
+- Schemes: `c:ConceptScheme` / `l:VariableScheme` / `l:CodeListScheme` / `l:CategoryScheme` with matching `*SchemeName`
+- Groups: `c:ConceptGroup` (`r:ConceptReference` members), `l:VariableGroup` (`l:TypeOfVariableGroup`, `r:VariableReference`)
+- Identity: JSON `agencyID` → XML `r:Agency`
+
+When changing that contract, update `ddi-rest.yaml`, mock JSON under `mocks/data/`, and `mocks/ddi-xml-converter.js` together.
 
 ## Quick start
 

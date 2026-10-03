@@ -1,13 +1,12 @@
 /**
  * DDI XML Converter
- * 
- * Converts JSON API responses to DDI 3.3 compliant XML format.
- * Variable / CodeList / Concept shapes follow the Making Sense DDI-L 3.3 profile.
+ *
+ * Converts JSON API responses to DDI-L 3.3 XML following the Making Sense profile
+ * (aligned with Mekong conversion `toDOM`).
  */
 
 const builder = require('xmlbuilder');
 
-// DDI 3.3 Namespaces
 const DDI_NAMESPACES = {
   'c': 'ddi:conceptualcomponent:3_3',
   'd': 'ddi:datacollection:3_3',
@@ -19,37 +18,76 @@ const DDI_NAMESPACES = {
   's': 'ddi:studyunit:3_3'
 };
 
-/**
- * Convert a JSON object to DDI XML structure
- */
-function convertToDDIXML(jsonData, rootElementName) {
+function convertToDDIXML(jsonData) {
   const root = builder.create('g:ResourcePackage', {
     version: '1.0',
     encoding: 'UTF-8'
   });
 
-  // Add namespaces
   Object.keys(DDI_NAMESPACES).forEach(prefix => {
     root.att(`xmlns:${prefix}`, DDI_NAMESPACES[prefix]);
   });
   root.att('xmlns', 'ddi:instance:3_3');
 
   if (Array.isArray(jsonData)) {
-    // Array of resources - add each directly to root
-    jsonData.forEach(item => {
-      convertObjectToDDI(root, item);
-    });
+    jsonData.forEach(item => convertObjectToDDI(root, item));
   } else {
-    // Single resource - add directly to root
     convertObjectToDDI(root, jsonData);
   }
 
   return root.end({ pretty: true, indent: '   ', newline: '\n' });
 }
 
-/**
- * Convert a single JSON object to DDI XML element and add it to parent
- */
+function urnOf(ref) {
+  if (!ref) return null;
+  if (typeof ref === 'string') return ref;
+  return ref.urn || `urn:ddi:${ref.agencyID}:${ref.id}:${ref.version}`;
+}
+
+function typeOf(ref, fallback) {
+  if (!ref || typeof ref === 'string') return fallback;
+  return ref.typeOfObject || ref.type || fallback;
+}
+
+function addReference(parent, elementName, ref, defaultType) {
+  if (!ref) return;
+  const refEle = parent.ele(elementName);
+  refEle.ele('r:URN', urnOf(ref));
+  refEle.ele('r:TypeOfObject', typeOf(ref, defaultType));
+}
+
+function isIdentifierOnly(member) {
+  if (typeof member === 'string') return true;
+  if (!member || typeof member !== 'object') return true;
+  // Full objects carry name and/or label (or representation / codes).
+  return Boolean(member.id) && !member.name && !member.label && !member.representation && !member.codes;
+}
+
+function appendName(element, elementName, names) {
+  if (!names || !Array.isArray(names)) return;
+  names.forEach(n => {
+    element.ele(elementName)
+      .ele('r:String', n.value).att('xml:lang', n.lang);
+  });
+}
+
+function appendLabel(element, labels) {
+  if (!labels || !Array.isArray(labels) || labels.length === 0) return;
+  const labelEle = element.ele('r:Label');
+  labels.forEach(l => {
+    labelEle.ele('r:Content', l.value).att('xml:lang', l.lang);
+  });
+}
+
+function appendDescription(element, descriptions) {
+  if (!descriptions || !Array.isArray(descriptions) || descriptions.length === 0) return;
+  // Mekong: one r:Description with multiple r:Content
+  const descEle = element.ele('r:Description');
+  descriptions.forEach(d => {
+    descEle.ele('r:Content', d.value).att('xml:lang', d.lang);
+  });
+}
+
 function convertObjectToDDI(parent, obj) {
   if (!obj || typeof obj !== 'object') {
     return null;
@@ -58,227 +96,248 @@ function convertObjectToDDI(parent, obj) {
   const elementName = getDDIElementName(obj);
   const element = parent.ele(elementName);
 
-  // Handle isUniversallyUnique attribute
   if (obj.isUniversallyUnique === true) {
     element.att('isUniversallyUnique', 'true');
   }
 
-  // Handle URN
   if (obj.urn) {
     element.ele('r:URN', obj.urn);
   }
 
-  // Handle UserID
+  // Optional full identity (Mekong fullIdentity=true): Agency / ID / Version
+  if (obj.agencyID) {
+    element.ele('r:Agency', obj.agencyID);
+  }
+  if (obj.id) {
+    element.ele('r:ID', obj.id);
+  }
+  if (obj.version) {
+    element.ele('r:Version', obj.version);
+  }
+
   if (obj.userID) {
     element.ele('r:UserID', obj.userID.value).att('typeOfUserID', obj.userID.typeOfUserID);
   }
 
-  // Handle name (for Concepts, ConceptSchemes, Variables, VariableSchemes, CodeLists)
+  // TypeOfVariableGroup before name (Mekong VariableGroup)
+  if (elementName === 'l:VariableGroup' && obj.typeOfVariableGroup) {
+    element.ele('l:TypeOfVariableGroup', obj.typeOfVariableGroup);
+  }
+
+  // Names — scheme types use *SchemeName (Mekong createBase*)
   if (obj.name && Array.isArray(obj.name)) {
-    if (elementName === 'c:Concept' || elementName === 'c:ConceptScheme') {
-      obj.name.forEach(n => {
-        element.ele('c:ConceptName')
-          .ele('r:String', n.value).att('xml:lang', n.lang);
-      });
-    } else if (elementName === 'l:Variable' || elementName === 'l:VariableScheme') {
-      obj.name.forEach(n => {
-        element.ele('l:VariableName')
-          .ele('r:String', n.value).att('xml:lang', n.lang);
-      });
-    } else if (elementName === 'l:CodeList' || elementName === 'l:CodeListScheme') {
-      obj.name.forEach(n => {
-        element.ele('l:CodeListName')
-          .ele('r:String', n.value).att('xml:lang', n.lang);
-      });
+    switch (elementName) {
+      case 'c:Concept':
+        appendName(element, 'c:ConceptName', obj.name);
+        break;
+      case 'c:ConceptScheme':
+        appendName(element, 'c:ConceptSchemeName', obj.name);
+        break;
+      case 'c:ConceptGroup':
+        appendName(element, 'c:ConceptGroupName', obj.name);
+        break;
+      case 'c:Universe':
+        appendName(element, 'c:UniverseName', obj.name);
+        break;
+      case 'c:UniverseScheme':
+        appendName(element, 'c:UniverseSchemeName', obj.name);
+        break;
+      case 'l:Variable':
+        appendName(element, 'l:VariableName', obj.name);
+        break;
+      case 'l:VariableScheme':
+        appendName(element, 'l:VariableSchemeName', obj.name);
+        break;
+      case 'l:VariableGroup':
+        appendName(element, 'l:VariableGroupName', obj.name);
+        break;
+      case 'l:CodeList':
+        appendName(element, 'l:CodeListName', obj.name);
+        break;
+      case 'l:CodeListScheme':
+        appendName(element, 'l:CodeListSchemeName', obj.name);
+        break;
+      case 'l:CategoryScheme':
+        appendName(element, 'l:CategorySchemeName', obj.name);
+        break;
+      case 's:StudyUnit':
+        // StudyUnit uses Citation, not *Name — handled below if citation present
+        break;
+      default:
+        break;
     }
   }
 
-  // Handle label
-  if (obj.label && Array.isArray(obj.label)) {
-    const labelEle = element.ele('r:Label');
-    obj.label.forEach(l => {
-      labelEle.ele('r:Content', l.value).att('xml:lang', l.lang);
-    });
+  appendLabel(element, obj.label);
+  appendDescription(element, obj.description);
+
+  if (obj.typeOfUnit && elementName === 'c:Universe') {
+    element.ele('c:TypeOfUnit', obj.typeOfUnit);
   }
 
-  // Handle description
-  if (obj.description && Array.isArray(obj.description)) {
-    obj.description.forEach(d => {
-      element.ele('r:Description')
-        .ele('r:Content', d.value).att('xml:lang', d.lang);
-    });
+  // Variable: concept / source / basedOn / outParameter
+  if (obj.basedOnReference) {
+    const basedOn = element.ele('r:BasedOnObject');
+    addReference(basedOn, 'r:BasedOnReference', obj.basedOnReference, 'Variable');
+  }
+  if (obj.outParameter) {
+    const out = element.ele('r:OutParameter');
+    if (obj.outParameter.isArray !== undefined) {
+      out.att('isArray', String(obj.outParameter.isArray));
+    }
+    if (obj.outParameter.urn) out.ele('r:URN', obj.outParameter.urn);
+    if (obj.outParameter.id) out.ele('r:ID', obj.outParameter.id);
   }
 
-  // Handle conceptReference (reusable r:ConceptReference)
-  if (obj.conceptReference) {
-    const refEle = element.ele('r:ConceptReference');
-    refEle.ele('r:URN', obj.conceptReference.urn || `urn:ddi:${obj.conceptReference.agencyID}:${obj.conceptReference.id}:${obj.conceptReference.version}`);
-    refEle.ele('r:TypeOfObject', obj.conceptReference.typeOfObject || obj.conceptReference.type);
-  }
-
-  // Handle concept (when resolved)
+  addReference(element, 'r:ConceptReference', obj.conceptReference, 'Concept');
   if (obj.concept) {
     convertObjectToDDI(element, obj.concept);
   }
 
-  // Handle subclassOfReference
-  if (obj.subclassOfReference) {
-    const refEle = element.ele('c:SubclassOfReference');
-    refEle.ele('r:URN', obj.subclassOfReference.urn || `urn:ddi:${obj.subclassOfReference.agencyID}:${obj.subclassOfReference.id}:${obj.subclassOfReference.version}`);
-    refEle.ele('r:TypeOfObject', obj.subclassOfReference.typeOfObject || obj.subclassOfReference.type);
-  }
-
-  // Handle subclassOf (when resolved)
+  addReference(element, 'c:SubclassOfReference', obj.subclassOfReference, 'Concept');
   if (obj.subclassOf) {
     convertObjectToDDI(element, obj.subclassOf);
   }
 
-  // Handle representation (for Variables) — l:VariableRepresentation + r:* children
+  addReference(element, 'r:SourceVariableReference', obj.sourceVariableReference, 'Variable');
+  if (obj.sourceVariable) {
+    convertObjectToDDI(element, obj.sourceVariable);
+  }
+
+  addReference(element, 'r:UniverseReference', obj.universeReference, 'Universe');
+  addReference(element, 'r:ProcessingInstructionReference', obj.processingInstructionReference, 'GenerationInstruction');
+  addReference(element, 'r:MeasurementReference', obj.measurementReference, 'MeasurementItem');
+
   if (obj.representation) {
     const repEle = element.ele('l:VariableRepresentation');
     convertRepresentation(repEle, obj.representation);
   }
 
-  // Handle sourceVariableReference
-  if (obj.sourceVariableReference) {
-    const refEle = element.ele('l:SourceVariableReference');
-    refEle.ele('r:URN', obj.sourceVariableReference.urn || `urn:ddi:${obj.sourceVariableReference.agencyID}:${obj.sourceVariableReference.id}:${obj.sourceVariableReference.version}`);
-    refEle.ele('r:TypeOfObject', obj.sourceVariableReference.typeOfObject || obj.sourceVariableReference.type);
+  // CodeList body
+  if (elementName === 'l:CodeList') {
+    if (obj.recommendedDataType !== undefined) {
+      const rdt = element.ele('r:RecommendedDataType', String(obj.recommendedDataType));
+      if (obj.recommendedDataTypeControlledVocabularyURN) {
+        rdt.att('controlledVocabularyURN', obj.recommendedDataTypeControlledVocabularyURN);
+      }
+    }
+    addReference(element, 'r:CategorySchemeReference', obj.categorySchemeReference, 'CategoryScheme');
+    if (obj.categoryScheme) {
+      convertObjectToDDI(element, obj.categoryScheme);
+    }
+    if (obj.codes && Array.isArray(obj.codes)) {
+      obj.codes.forEach(code => convertCodeToDDI(element, code));
+    }
   }
 
-  // Handle sourceVariable (when resolved)
-  if (obj.sourceVariable) {
-    convertObjectToDDI(element, obj.sourceVariable);
+  // Scheme / group membership
+  appendMemberArray(element, obj.concepts, 'c:Concept', 'Concept');
+  appendMemberArray(element, obj.variables, 'l:Variable', 'Variable');
+  appendMemberArray(element, obj.codeLists, 'l:CodeList', 'CodeList');
+  appendMemberArray(element, obj.categories, 'l:Category', 'Category');
+
+  // Groups inside schemes (Mekong: after members)
+  if (obj.conceptGroups && Array.isArray(obj.conceptGroups)) {
+    obj.conceptGroups.forEach(group => convertObjectToDDI(element, {
+      ...group,
+      typeOfObject: group.typeOfObject || 'ConceptGroup'
+    }));
+  }
+  if (obj.variableGroups && Array.isArray(obj.variableGroups)) {
+    obj.variableGroups.forEach(group => convertObjectToDDI(element, {
+      ...group,
+      typeOfObject: group.typeOfObject || 'VariableGroup'
+    }));
   }
 
-  // Handle concepts array (for ConceptScheme)
-  if (obj.concepts && Array.isArray(obj.concepts)) {
-    obj.concepts.forEach(concept => {
-      if (typeof concept === 'string' || (concept.id && !concept.name)) {
-        // It's an identifier reference
-        const conceptRef = element.ele('c:Concept');
-        if (concept.isUniversallyUnique === true) {
-          conceptRef.att('isUniversallyUnique', 'true');
-        }
-        conceptRef.ele('r:URN', concept.urn || `urn:ddi:${concept.agencyID}:${concept.id}:${concept.version}`);
+  // Group members as references (Mekong ConceptGroup / VariableGroup)
+  if (elementName === 'c:ConceptGroup' && obj.conceptReferences && Array.isArray(obj.conceptReferences)) {
+    obj.conceptReferences.forEach(ref => addReference(element, 'r:ConceptReference', ref, 'Concept'));
+  }
+  if (elementName === 'c:ConceptGroup' && obj.concepts && Array.isArray(obj.concepts)) {
+    // Prefer references when members are identifiers; full embed when resolved
+    obj.concepts.forEach(member => {
+      if (isIdentifierOnly(member)) {
+        addReference(element, 'r:ConceptReference', member, 'Concept');
       } else {
-        // It's a full Concept object
-        convertObjectToDDI(element, concept);
+        convertObjectToDDI(element, { ...member, typeOfObject: 'Concept' });
+      }
+    });
+  }
+  if (elementName === 'l:VariableGroup' && obj.variableReferences && Array.isArray(obj.variableReferences)) {
+    obj.variableReferences.forEach(ref => addReference(element, 'r:VariableReference', ref, 'Variable'));
+  }
+  if (elementName === 'l:VariableGroup' && obj.variables && Array.isArray(obj.variables)) {
+    obj.variables.forEach(member => {
+      if (isIdentifierOnly(member)) {
+        addReference(element, 'r:VariableReference', member, 'Variable');
+      } else {
+        convertObjectToDDI(element, { ...member, typeOfObject: 'Variable' });
       }
     });
   }
 
-  // Handle variables array (for VariableScheme)
-  if (obj.variables && Array.isArray(obj.variables)) {
-    obj.variables.forEach(variable => {
-      if (typeof variable === 'string' || (variable.id && !variable.name)) {
-        // It's an identifier reference
-        const varRef = element.ele('l:Variable');
-        if (variable.isUniversallyUnique === true) {
-          varRef.att('isUniversallyUnique', 'true');
-        }
-        varRef.ele('r:URN', variable.urn || `urn:ddi:${variable.agencyID}:${variable.id}:${variable.version}`);
-      } else {
-        // It's a full Variable object
-        convertObjectToDDI(element, variable);
-      }
-    });
+  // Code (standalone path)
+  if (elementName === 'l:Code') {
+    addReference(element, 'r:CategoryReference', obj.categoryReference, 'Category');
+    if (obj.category) {
+      convertObjectToDDI(element, obj.category);
+    }
+    if (obj.value !== undefined) {
+      element.ele('r:Value', String(obj.value));
+    }
   }
 
-  // Handle codeLists array (for CodeListScheme)
-  if (obj.codeLists && Array.isArray(obj.codeLists)) {
-    obj.codeLists.forEach(codeList => {
-      if (typeof codeList === 'string' || (codeList.id && !codeList.name)) {
-        // It's an identifier reference
-        const codeListRef = element.ele('l:CodeList');
-        if (codeList.isUniversallyUnique === true) {
-          codeListRef.att('isUniversallyUnique', 'true');
-        }
-        codeListRef.ele('r:URN', codeList.urn || `urn:ddi:${codeList.agencyID}:${codeList.id}:${codeList.version}`);
-      } else {
-        // It's a full CodeList object
-        convertObjectToDDI(element, codeList);
-      }
-    });
-  }
-
-  // Handle categories array (for CategoryScheme)
-  if (obj.categories && Array.isArray(obj.categories)) {
-    obj.categories.forEach(category => {
-      if (typeof category === 'string' || (category.id && !category.label)) {
-        // It's an identifier reference
-        const catRef = element.ele('l:Category');
-        if (category.isUniversallyUnique === true) {
-          catRef.att('isUniversallyUnique', 'true');
-        }
-        catRef.ele('r:URN', category.urn || `urn:ddi:${category.agencyID}:${category.id}:${category.version}`);
-      } else {
-        // It's a full Category object
-        convertObjectToDDI(element, category);
-      }
-    });
-  }
-
-  // CodeList: recommendedDataType then categorySchemeReference then codes
-  if (obj.recommendedDataType !== undefined && (elementName === 'l:CodeList' || obj.codes !== undefined)) {
-    element.ele('r:RecommendedDataType', String(obj.recommendedDataType));
-  }
-
-  if (obj.categorySchemeReference) {
-    const refEle = element.ele('r:CategorySchemeReference');
-    refEle.ele('r:URN', obj.categorySchemeReference.urn || `urn:ddi:${obj.categorySchemeReference.agencyID}:${obj.categorySchemeReference.id}:${obj.categorySchemeReference.version}`);
-    refEle.ele('r:TypeOfObject', obj.categorySchemeReference.typeOfObject || obj.categorySchemeReference.type);
-  }
-
-  if (obj.categoryScheme) {
-    convertObjectToDDI(element, obj.categoryScheme);
-  }
-
-  if (obj.codes && Array.isArray(obj.codes)) {
-    obj.codes.forEach(code => {
-      convertCodeToDDI(element, code);
-    });
-  }
-
-  // Handle categoryReference (for Code) — r:CategoryReference
-  if (obj.categoryReference && elementName === 'l:Code') {
-    const refEle = element.ele('r:CategoryReference');
-    refEle.ele('r:URN', obj.categoryReference.urn || `urn:ddi:${obj.categoryReference.agencyID}:${obj.categoryReference.id}:${obj.categoryReference.version}`);
-    refEle.ele('r:TypeOfObject', obj.categoryReference.typeOfObject || obj.categoryReference.type);
-  }
-
-  // Handle category (when resolved)
-  if (obj.category) {
-    convertObjectToDDI(element, obj.category);
-  }
-
-  // Handle value (for Code) — r:Value
-  if (obj.value !== undefined && elementName === 'l:Code') {
-    element.ele('r:Value', String(obj.value));
+  // StudyUnit citation (minimal)
+  if (elementName === 's:StudyUnit' && obj.title) {
+    const citation = element.ele('r:Citation');
+    const title = citation.ele('r:Title');
+    if (Array.isArray(obj.title)) {
+      obj.title.forEach(t => title.ele('r:String', t.value).att('xml:lang', t.lang));
+    } else {
+      title.ele('r:String', String(obj.title));
+    }
   }
 
   return element;
 }
 
-/**
- * Convert representation object to DDI XML
- */
+function appendMemberArray(element, members, stubElementName, typeName) {
+  if (!members || !Array.isArray(members)) return;
+  // Skip when parent is a Group that uses reference members (handled separately)
+  const parentName = element.name;
+  if (parentName === 'c:ConceptGroup' || parentName === 'l:VariableGroup') {
+    return;
+  }
+  members.forEach(member => {
+    if (isIdentifierOnly(member)) {
+      // Mekong embeds full children in schemes; with Identifier-only JSON we emit a URN stub
+      // of the child type (resolved payloads replace this with a full object).
+      const stub = element.ele(stubElementName);
+      if (member && member.isUniversallyUnique === true) {
+        stub.att('isUniversallyUnique', 'true');
+      }
+      stub.ele('r:URN', urnOf(member));
+    } else {
+      convertObjectToDDI(element, {
+        ...member,
+        typeOfObject: member.typeOfObject || member.type || typeName
+      });
+    }
+  });
+}
+
 function convertRepresentation(parent, representation) {
   if (!representation) return;
+
+  addReference(parent, 'r:ProcessingInstructionReference', representation.processingInstructionReference, 'GenerationInstruction');
 
   if (representation.codeRepresentation) {
     const codeRep = parent.ele('r:CodeRepresentation');
     if (representation.codeRepresentation.recommendedDataType !== undefined) {
       codeRep.ele('r:RecommendedDataType', representation.codeRepresentation.recommendedDataType);
     }
-
-    if (representation.codeRepresentation.codeListReference) {
-      const refEle = codeRep.ele('r:CodeListReference');
-      refEle.ele('r:URN', representation.codeRepresentation.codeListReference.urn ||
-        `urn:ddi:${representation.codeRepresentation.codeListReference.agencyID}:${representation.codeRepresentation.codeListReference.id}:${representation.codeRepresentation.codeListReference.version}`);
-      refEle.ele('r:TypeOfObject', representation.codeRepresentation.codeListReference.typeOfObject || representation.codeRepresentation.codeListReference.type);
-    }
-
+    addReference(codeRep, 'r:CodeListReference', representation.codeRepresentation.codeListReference, 'CodeList');
     if (representation.codeRepresentation.codeList) {
       convertObjectToDDI(codeRep, representation.codeRepresentation.codeList);
     }
@@ -289,11 +348,6 @@ function convertRepresentation(parent, representation) {
     if (representation.numericRepresentation.recommendedDataType !== undefined) {
       numRep.ele('r:RecommendedDataType', representation.numericRepresentation.recommendedDataType);
     }
-
-    if (representation.numericRepresentation.format) {
-      numRep.ele('r:Format', representation.numericRepresentation.format);
-    }
-
     if (representation.numericRepresentation.numberRange) {
       const range = representation.numericRepresentation.numberRange;
       const rangeEle = numRep.ele('r:NumberRange');
@@ -308,76 +362,82 @@ function convertRepresentation(parent, representation) {
 
   if (representation.textRepresentation) {
     const textRep = parent.ele('r:TextRepresentation');
-    if (representation.textRepresentation.recommendedDataType !== undefined) {
-      textRep.ele('r:RecommendedDataType', representation.textRepresentation.recommendedDataType);
-    }
-
     if (representation.textRepresentation.maxLength !== undefined) {
       textRep.att('maxLength', String(representation.textRepresentation.maxLength));
     }
-  }
-
-  if (representation.dateRepresentation) {
-    const dateRep = parent.ele('r:DateRepresentation');
-    if (representation.dateRepresentation.recommendedDataType !== undefined) {
-      dateRep.ele('r:RecommendedDataType', representation.dateRepresentation.recommendedDataType);
-    }
-
-    if (representation.dateRepresentation.format) {
-      dateRep.ele('r:Format', representation.dateRepresentation.format);
+    if (representation.textRepresentation.recommendedDataType !== undefined) {
+      textRep.ele('r:RecommendedDataType', representation.textRepresentation.recommendedDataType);
     }
   }
+
+  const dateTime = representation.dateTimeRepresentation || representation.dateRepresentation;
+  if (dateTime) {
+    const dateRep = parent.ele('r:DateTimeRepresentation');
+    // Mekong typically emits DateTypeCode=Gregorian; RecommendedDataType is optional
+    if (dateTime.dateTypeCode !== undefined) {
+      dateRep.ele('r:DateTypeCode', dateTime.dateTypeCode);
+    } else if (!dateTime.recommendedDataType && !dateTime.format) {
+      dateRep.ele('r:DateTypeCode', 'Gregorian');
+    }
+    if (dateTime.recommendedDataType !== undefined) {
+      dateRep.ele('r:RecommendedDataType', dateTime.recommendedDataType);
+    }
+    if (dateTime.format) {
+      dateRep.ele('r:Format', dateTime.format);
+    }
+  }
+
+  // Managed representation references (Mekong)
+  addReference(parent, 'r:NumericRepresentationReference', representation.numericRepresentationReference, 'ManagedNumericRepresentation');
+  addReference(parent, 'r:TextRepresentationReference', representation.textRepresentationReference, 'ManagedTextRepresentation');
+  addReference(parent, 'r:DateTimeRepresentationReference', representation.dateTimeRepresentationReference, 'ManagedDateTimeRepresentation');
 }
 
-/**
- * Convert a Code object to DDI XML (l:Code)
- */
 function convertCodeToDDI(parent, code) {
-  if (!code || typeof code !== 'object') {
-    return null;
-  }
-
-  // Ensure Code element name even when typeOfObject is absent
-  const codeObj = { ...code, typeOfObject: code.typeOfObject || code.type || 'Code' };
-  return convertObjectToDDI(parent, codeObj);
+  if (!code || typeof code !== 'object') return null;
+  return convertObjectToDDI(parent, {
+    ...code,
+    typeOfObject: code.typeOfObject || code.type || 'Code'
+  });
 }
 
-/**
- * Get the DDI XML element name for a JSON object
- */
 function getDDIElementName(obj) {
   if (!obj || typeof obj !== 'object') {
     return 'r:Item';
   }
 
-  // Check for typeOfObject first
-  if (obj.typeOfObject || obj.type) {
-    const type = obj.typeOfObject || obj.type;
+  const type = obj.typeOfObject || obj.type;
+  if (type) {
     switch (type) {
-      case 'Variable':
-        return 'l:Variable';
-      case 'Concept':
-        return 'c:Concept';
-      case 'ConceptScheme':
-        return 'c:ConceptScheme';
-      case 'VariableScheme':
-        return 'l:VariableScheme';
-      case 'CodeList':
-        return 'l:CodeList';
-      case 'CodeListScheme':
-        return 'l:CodeListScheme';
-      case 'CategoryScheme':
-        return 'l:CategoryScheme';
-      case 'Category':
-        return 'l:Category';
-      case 'Code':
-        return 'l:Code';
-      default:
-        return 'r:Item';
+      case 'Variable': return 'l:Variable';
+      case 'VariableGroup': return 'l:VariableGroup';
+      case 'VariableScheme': return 'l:VariableScheme';
+      case 'Concept': return 'c:Concept';
+      case 'ConceptGroup': return 'c:ConceptGroup';
+      case 'ConceptScheme': return 'c:ConceptScheme';
+      case 'CodeList': return 'l:CodeList';
+      case 'CodeListScheme': return 'l:CodeListScheme';
+      case 'CategoryScheme': return 'l:CategoryScheme';
+      case 'Category': return 'l:Category';
+      case 'Code': return 'l:Code';
+      case 'Universe': return 'c:Universe';
+      case 'UniverseScheme': return 'c:UniverseScheme';
+      case 'StudyUnit': return 's:StudyUnit';
+      case 'PhysicalInstance': return 'pi:PhysicalInstance';
+      case 'DataSet': return 'i:DataSet';
+      default: break;
     }
   }
 
-  // Infer from structure
+  // Structural inference (prefer explicit typeOfObject in mocks)
+  if (obj.typeOfVariableGroup !== undefined || obj.variableReferences !== undefined) {
+    return 'l:VariableGroup';
+  }
+  if (obj.conceptReferences !== undefined) {
+    return 'c:ConceptGroup';
+  }
+  if (obj.conceptGroups !== undefined) return 'c:ConceptScheme';
+  if (obj.variableGroups !== undefined) return 'l:VariableScheme';
   if (obj.concepts !== undefined) return 'c:ConceptScheme';
   if (obj.variables !== undefined) return 'l:VariableScheme';
   if (obj.codeLists !== undefined) return 'l:CodeListScheme';
@@ -385,22 +445,20 @@ function getDDIElementName(obj) {
   if (obj.codes !== undefined) return 'l:CodeList';
   if (obj.value !== undefined && (obj.categoryReference !== undefined || obj.category !== undefined)) return 'l:Code';
   if (obj.subclassOfReference !== undefined || obj.subclassOf !== undefined) return 'c:Concept';
-  if (obj.representation !== undefined) return 'l:Variable';
-  if (obj.label && !obj.name && !obj.value && !obj.representation) return 'l:Category';
-  // If it has name and label but no other identifying features, check if it looks like a Variable
-  if (obj.name && obj.label && !obj.value && !obj.codes) {
-    // Could be Variable or Concept - default to Variable if no other indicators
+  if (obj.representation !== undefined || obj.conceptReference !== undefined || obj.sourceVariableReference !== undefined) {
     return 'l:Variable';
+  }
+  // Category: label without name
+  if (obj.label && !obj.name && !obj.value && !obj.representation) return 'l:Category';
+  // Concept vs Variable without representation: prefer Concept (Variables always carry representation in this profile)
+  if (obj.name && obj.label && !obj.representation && !obj.codes && !obj.value) {
+    return 'c:Concept';
   }
 
   return 'r:Item';
 }
 
-/**
- * Get root element name based on resource type
- */
-function getRootElementName(data, resourceType) {
-  // Always wrap in ResourcePackage for DDI compliance
+function getRootElementName() {
   return 'g:ResourcePackage';
 }
 

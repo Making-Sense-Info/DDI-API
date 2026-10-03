@@ -4,39 +4,22 @@
     "id": "conceptscheme-001",
     "agencyID": "example.agency",
     "version": "1.0.0",
+    "typeOfObject": "ConceptScheme",
     "userID": {
       "value": "DEMOGRAPHIC_CONCEPTS",
       "typeOfUserID": "InternalID"
     },
     "name": [
-      {
-        "lang": "en",
-        "value": "Demographic Concepts"
-      },
-      {
-        "lang": "fr",
-        "value": "Concepts démographiques"
-      }
+      { "lang": "en", "value": "Demographic Concepts" },
+      { "lang": "fr", "value": "Concepts démographiques" }
     ],
     "label": [
-      {
-        "lang": "en",
-        "value": "Demographic Concepts Scheme"
-      },
-      {
-        "lang": "fr",
-        "value": "Schéma de concepts démographiques"
-      }
+      { "lang": "en", "value": "Demographic Concepts Scheme" },
+      { "lang": "fr", "value": "Schéma de concepts démographiques" }
     ],
     "description": [
-      {
-        "lang": "en",
-        "value": "A collection of concepts related to demographic characteristics"
-      },
-      {
-        "lang": "fr",
-        "value": "Une collection de concepts liés aux caractéristiques démographiques"
-      }
+      { "lang": "en", "value": "A collection of concepts related to demographic characteristics" },
+      { "lang": "fr", "value": "Une collection de concepts liés aux caractéristiques démographiques" }
     ],
     "concepts": [
       {
@@ -56,9 +39,48 @@
         "id": "concept-003",
         "agencyID": "example.agency",
         "version": "1.0.0"
+      },
+      {
+        "urn": "urn:ddi:example.agency:concept-004:1.0.0",
+        "id": "concept-004",
+        "agencyID": "example.agency",
+        "version": "1.0.0"
+      }
+    ],
+    "conceptGroups": [
+      {
+        "urn": "urn:ddi:example.agency:conceptgroup-001:1.0.0",
+        "id": "conceptgroup-001",
+        "agencyID": "example.agency",
+        "version": "1.0.0",
+        "typeOfObject": "ConceptGroup",
+        "name": [
+          { "lang": "en", "value": "Anthropometric concepts" },
+          { "lang": "fr", "value": "Concepts anthropométriques" }
+        ],
+        "label": [
+          { "lang": "en", "value": "Anthropometric concepts" },
+          { "lang": "fr", "value": "Concepts anthropométriques" }
+        ],
+        "conceptReferences": [
+          {
+            "urn": "urn:ddi:example.agency:concept-003:1.0.0",
+            "id": "concept-003",
+            "agencyID": "example.agency",
+            "version": "1.0.0",
+            "typeOfObject": "Concept"
+          },
+          {
+            "urn": "urn:ddi:example.agency:concept-004:1.0.0",
+            "id": "concept-004",
+            "agencyID": "example.agency",
+            "version": "1.0.0",
+            "typeOfObject": "Concept"
+          }
+        ],
+        "isUniversallyUnique": true
       }
     ],
     "isUniversallyUnique": true
   }
 ]
-

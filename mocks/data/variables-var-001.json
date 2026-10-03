@@ -3,6 +3,7 @@
   "id": "var-001",
   "agencyID": "example.agency",
   "version": "1.0.0",
+  "typeOfObject": "Variable",
   "userID": {
     "value": "AGE_BASELINE",
     "typeOfUserID": "InternalID"

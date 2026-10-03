@@ -5,14 +5,16 @@ This guide explains how to use the mock API endpoints for testing the DDI REST A
 ## Overview
 
 The mock server serves realistic data examples in both French and English, including:
-- Variables
-- Concepts
-- Concept Schemes
-- Variable Schemes
+- Variables (incl. numeric `numberRange`, coded, dateTime, `sourceVariableReference`)
+- Concepts (incl. `subclassOfReference`)
+- Concept Schemes (+ nested ConceptGroups)
+- Variable Schemes (+ nested VariableGroups)
 - Code Lists
 - Code List Schemes
 - Category Schemes
 - Categories
+
+XML conversion follows the Making Sense / Mekong `toDOM` profile (see `ddi-rest.yaml` intro and `mocks/ddi-xml-converter.js`).
 
 ### Resource identifiers (URN vs plain ID)
 

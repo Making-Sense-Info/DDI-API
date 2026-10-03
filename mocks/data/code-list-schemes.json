@@ -4,6 +4,7 @@
     "id": "codelistscheme-001",
     "agencyID": "example.agency",
     "version": "1.0.0",
+    "typeOfObject": "CodeListScheme",
     "userID": {
       "value": "DEMOGRAPHIC_CODELISTS",
       "typeOfUserID": "InternalID"

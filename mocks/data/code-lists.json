@@ -4,6 +4,7 @@
     "id": "codelist-001",
     "agencyID": "example.agency",
     "version": "1.0.0",
+    "typeOfObject": "CodeList",
     "userID": {
       "value": "GENDER_CODES",
       "typeOfUserID": "InternalID"

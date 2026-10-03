@@ -39,13 +39,16 @@ info:
     
     If no `Accept` header is provided, the API returns DDI JSON format by default.
 
-    ## Variable, CodeList, and Concept XML/JSON (Making Sense DDI-L 3.3 profile)
+    ## Variable, CodeList, Concept, Schemes, and Groups (Making Sense / Mekong `toDOM`)
 
-    Variable, CodeList, and Concept payloads (JSON shape and DDI-L 3.3 XML) follow a fixed Making Sense structure profile:
-    - Variables use `l:VariableRepresentation` with reusable children (`r:CodeRepresentation`, `r:NumericRepresentation`, `r:TextRepresentation`, `r:DateRepresentation`, `r:RecommendedDataType`, `r:CodeListReference`).
-    - A Variable’s concept link is **`r:ConceptReference`** (reusable namespace), not `c:ConceptReference`.
-    - Code lists use `l:CodeList` / `l:CodeListScheme` (logical product), with `r:RecommendedDataType`, `r:CategorySchemeReference`, and codes as `l:Code` (`r:CategoryReference` + `r:Value`).
-    - Concepts use **`c:Concept`** (conceptual component) with `c:ConceptName`, `r:Label`, `r:Description`, and optional broader link **`c:SubclassOfReference`** (`r:URN` + `r:TypeOfObject` = `Concept`). This profile does **not** emit `c:Definition`.
+    JSON shapes and DDI-L 3.3 XML follow the Making Sense structure profile, aligned with Mekong conversion `toDOM`:
+    - **Variable** (`l:Variable`): `l:VariableName`, `r:Label`, `r:Description`, optional `r:ConceptReference`, optional `r:SourceVariableReference`, optional `r:BasedOnObject`/`r:BasedOnReference`, then `l:VariableRepresentation` with `r:CodeRepresentation` | `r:NumericRepresentation` (`r:NumberRange`/`r:Low`/`r:High`) | `r:TextRepresentation` (`maxLength` attribute) | `r:DateTimeRepresentation` (`r:DateTypeCode`, typically `Gregorian`).
+    - **Concept** (`c:Concept`): `c:ConceptName`, `r:Label`, `r:Description`, optional broader `c:SubclassOfReference`. No `c:Definition`.
+    - **CodeList** (`l:CodeList`): `r:RecommendedDataType`, `r:CategorySchemeReference`, nested `l:Code` (`r:CategoryReference` + `r:Value`).
+    - **Category** / **CategoryScheme**: `l:Category`, `l:CategoryScheme` (+ `l:CategorySchemeName` when named).
+    - **Schemes**: `c:ConceptScheme` / `l:VariableScheme` / `l:CodeListScheme` / `l:CategoryScheme` with matching `*SchemeName`. Member arrays are Identifiers in JSON (`references=none`); when resolved or converted from full objects, Mekong embeds full children. Identifier-only XML uses a URN stub of the child type.
+    - **Groups** (inside schemes, Mekong): `c:ConceptGroup` with `r:ConceptReference` members; `l:VariableGroup` with `l:TypeOfVariableGroup`, optional `r:ConceptReference`, and `r:VariableReference` members.
+    - Identity: JSON `agencyID` maps to XML **`r:Agency`** (not `r:AgencyID`). Default Mekong packages often emit URN (+ optional `r:UserID`) only.
 
     **Publish checklist:** when changing this contract, update `ddi-rest.yaml` (spec + examples), mock JSON under `mocks/data/`, and `mocks/ddi-xml-converter.js` together.
 
@@ -1917,7 +1920,7 @@ components:
         agencyID:
           type: string
           xml:
-            name: r:AgencyID
+            name: r:Agency
           description: |
             The agency maintaining this variable.
             When used with id and version, forms an alternative identification to URN.
@@ -1983,8 +1986,10 @@ components:
           description: The representation of the variable (e.g., numeric, text, date, code)
         sourceVariableReference:
           $ref: "#/components/schemas/Reference"
+          xml:
+            name: r:SourceVariableReference
           description: |
-            Reference to the source variable if this is a derived variable.
+            Reference to the source variable if this is a derived variable (reusable `r:SourceVariableReference`).
             
             When `references` parameter is `children` or `all`, this property is replaced by `sourceVariable` containing the full Variable object.
         sourceVariable:
@@ -2080,7 +2085,7 @@ components:
         agencyID:
           type: string
           xml:
-            name: r:AgencyID
+            name: r:Agency
           description: |
             The agency maintaining this concept.
             When used with id and version, forms an alternative identification to URN.
@@ -2183,8 +2188,10 @@ components:
 
     ConceptScheme:
       type: object
+      xml:
+        name: c:ConceptScheme
       description: |
-        A ConceptScheme is a collection of concepts that provides a structured vocabulary for describing data.
+        A ConceptScheme (`c:ConceptScheme`). Mekong embeds full `c:Concept` children then `c:ConceptGroup`.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
       properties:
@@ -2223,9 +2230,11 @@ components:
             Example: "1.0.0"
         name:
           type: array
+          xml:
+            name: c:ConceptSchemeName
           items:
             $ref: "#/components/schemas/Label"
-          description: Concept scheme names in different languages
+          description: Concept scheme names (`c:ConceptSchemeName` / `r:String`)
         label:
           type: array
           items:
@@ -2240,7 +2249,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Identifier"
-          description: List of identifiers for the concepts contained in this scheme
+          description: |
+            Concept members. Identifiers when `references=none`; full Concepts when resolved (Mekong embeds full children).
+        conceptGroups:
+          type: array
+          items:
+            $ref: "#/components/schemas/ConceptGroup"
+          description: Optional `c:ConceptGroup` children (after concepts in Mekong `toDOM`)
         isUniversallyUnique:
           type: boolean
           description: Whether the concept scheme has a universally unique identifier
@@ -2283,8 +2298,10 @@ components:
 
     VariableScheme:
       type: object
+      xml:
+        name: l:VariableScheme
       description: |
-        A VariableScheme is a collection of variables that provides a structured definition of data elements.
+        A VariableScheme (`l:VariableScheme`). Mekong embeds full `l:Variable` children then `l:VariableGroup`.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
       properties:
@@ -2323,9 +2340,11 @@ components:
             Example: "1.0.0"
         name:
           type: array
+          xml:
+            name: l:VariableSchemeName
           items:
             $ref: "#/components/schemas/Label"
-          description: Variable scheme names in different languages
+          description: Variable scheme names (`l:VariableSchemeName` / `r:String`)
         label:
           type: array
           items:
@@ -2340,7 +2359,13 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Identifier"
-          description: List of identifiers for the variables contained in this scheme
+          description: |
+            Variable members. Identifiers when `references=none`; full Variables when resolved (Mekong embeds full children).
+        variableGroups:
+          type: array
+          items:
+            $ref: "#/components/schemas/VariableGroup"
+          description: Optional `l:VariableGroup` children (after variables in Mekong `toDOM`)
         isUniversallyUnique:
           type: boolean
           description: Whether the variable scheme has a universally unique identifier
@@ -2447,7 +2472,7 @@ components:
         agencyID:
           type: string
           xml:
-            name: r:AgencyID
+            name: r:Agency
           description: |
             The agency maintaining the referenced resource.
             When used with id and version, forms an alternative identification to URN.
@@ -2477,8 +2502,121 @@ components:
         version: "1.0.0"
         typeOfObject: "Concept"
 
+
+    ConceptGroup:
+      type: object
+      xml:
+        name: c:ConceptGroup
+      description: |
+        A ConceptGroup inside a ConceptScheme (`c:ConceptGroup`).
+        Mekong emits member links as `r:ConceptReference`.
+      properties:
+        urn:
+          type: string
+          xml:
+            name: r:URN
+        id:
+          type: string
+        agencyID:
+          type: string
+          xml:
+            name: r:Agency
+        version:
+          type: string
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+            typeOfUserID:
+              type: string
+        name:
+          type: array
+          xml:
+            name: c:ConceptGroupName
+          items:
+            $ref: "#/components/schemas/Label"
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+        conceptReferences:
+          type: array
+          items:
+            $ref: "#/components/schemas/Reference"
+          description: Member concepts as `r:ConceptReference`
+        isUniversallyUnique:
+          type: boolean
+      required:
+        - id
+
+    VariableGroup:
+      type: object
+      xml:
+        name: l:VariableGroup
+      description: |
+        A VariableGroup inside a VariableScheme (`l:VariableGroup`).
+        Mekong emits `l:TypeOfVariableGroup`, optional `r:ConceptReference`, then `r:VariableReference` members.
+      properties:
+        urn:
+          type: string
+          xml:
+            name: r:URN
+        id:
+          type: string
+        agencyID:
+          type: string
+          xml:
+            name: r:Agency
+        version:
+          type: string
+        userID:
+          type: object
+          properties:
+            value:
+              type: string
+            typeOfUserID:
+              type: string
+        typeOfVariableGroup:
+          type: string
+          xml:
+            name: l:TypeOfVariableGroup
+        name:
+          type: array
+          xml:
+            name: l:VariableGroupName
+          items:
+            $ref: "#/components/schemas/Label"
+        label:
+          type: array
+          items:
+            $ref: "#/components/schemas/Label"
+        description:
+          type: array
+          items:
+            $ref: "#/components/schemas/Description"
+        conceptReference:
+          $ref: "#/components/schemas/Reference"
+          xml:
+            name: r:ConceptReference
+        variableReferences:
+          type: array
+          items:
+            $ref: "#/components/schemas/Reference"
+          description: Member variables as `r:VariableReference`
+        isUniversallyUnique:
+          type: boolean
+      required:
+        - id
+
     CodeListScheme:
       type: object
+      xml:
+        name: l:CodeListScheme
       description: |
         A CodeListScheme is a collection of code lists that provides structured vocabularies for categorical data.
         
@@ -2521,9 +2659,11 @@ components:
             Example: "1.0.0"
         name:
           type: array
+          xml:
+            name: l:CodeListSchemeName
           items:
             $ref: "#/components/schemas/Label"
-          description: Code list scheme names in different languages
+          description: Code list scheme names (`l:CodeListSchemeName`)
         label:
           type: array
           items:
@@ -2836,8 +2976,10 @@ components:
 
     CategoryScheme:
       type: object
+      xml:
+        name: l:CategoryScheme
       description: |
-        A CategoryScheme is a collection of categories that provides structured vocabularies for categorical data.
+        A CategoryScheme (`l:CategoryScheme`). Mekong embeds full `l:Category` children.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
       properties:
@@ -2912,8 +3054,10 @@ components:
 
     Category:
       type: object
+      xml:
+        name: l:Category
       description: |
-        A Category represents a category in a category scheme.
+        A Category (`l:Category`) in a category scheme.
         
         In DDI, identification can be done either by URN (format: "urn:ddi:{agency}:{id}:{version}") or by the combination of agencyID, id, and version.
       properties:
@@ -3166,13 +3310,25 @@ components:
               type: string
               xml:
                 name: r:RecommendedDataType
-              enum: [Integer, Float, Double, Decimal]
-              description: The numeric data type
+              enum: [Integer, Float, Double, Decimal, Numeric]
+              description: The numeric data type (Mekong inline numeric often uses `Numeric`)
+            numberRange:
+              type: object
+              xml:
+                name: r:NumberRange
+              properties:
+                minimum:
+                  type: number
+                  description: Inclusive low bound (`r:Low` with `isInclusive=true`)
+                maximum:
+                  type: number
+                  description: Inclusive high bound (`r:High` with `isInclusive=true`)
+              description: Optional numeric range (`r:NumberRange`)
             format:
               type: string
               xml:
                 name: r:Format
-              description: Format specification (e.g., number format)
+              description: Format specification (optional; not emitted by Mekong `toDOM`)
           description: Numeric representation
         textRepresentation:
           type: object
@@ -3188,13 +3344,14 @@ components:
             maxLength:
               type: integer
               xml:
-                name: r:MaxLength
-              description: Maximum length of the text
+                attribute: true
+                name: maxLength
+              description: Maximum length of the text (XML attribute on `r:TextRepresentation`, Mekong `toDOM`)
           description: Text representation
-        dateRepresentation:
+        dateTimeRepresentation:
           type: object
           xml:
-            name: r:DateRepresentation
+            name: r:DateTimeRepresentation
           properties:
             recommendedDataType:
               type: string
@@ -3202,12 +3359,32 @@ components:
                 name: r:RecommendedDataType
               enum: [Date, DateTime]
               description: The date data type
+            dateTypeCode:
+              type: string
+              xml:
+                name: r:DateTypeCode
+              description: |
+                DDI date type code (Making Sense / Mekong toDOM typically emits `Gregorian`).
             format:
               type: string
               xml:
                 name: r:Format
               description: Date format specification
-          description: Date representation
+          description: Date/time representation (`r:DateTimeRepresentation`)
+        dateRepresentation:
+          type: object
+          deprecated: true
+          xml:
+            name: r:DateTimeRepresentation
+          properties:
+            recommendedDataType:
+              type: string
+              enum: [Date, DateTime]
+            format:
+              type: string
+          description: |
+            Deprecated alias of `dateTimeRepresentation`. Prefer `dateTimeRepresentation`.
+            XML is always emitted as `r:DateTimeRepresentation`.
         type:
           type: string
           enum: [Numeric, Text, Date, DateTime, Boolean, Code]
